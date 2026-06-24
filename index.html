@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Médicaments">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#f5f5f7">
+  <title>Médicaments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --card2: #f2f2f7;
+      --blue: #007AFF;
+      --green: #34C759;
+      --red: #FF3B30;
+      --orange: #FF9500;
+      --gray: #8e8e93;
+      --gray2: #c7c7cc;
+      --text: #1d1d1f;
+      --text2: #6e6e73;
+      --radius: 18px;
+      --shadow: 0 2px 20px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top status area */
+    .status-bar {
+      height: env(safe-area-inset-top, 44px);
+      background: var(--bg);
+    }
+
+    .header {
+      padding: 12px 20px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .header-sub {
+      font-size: 13px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    /* Hero card */
+    .hero {
+      margin: 0 16px 16px;
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .hero.take {
+      background: linear-gradient(135deg, #007AFF 0%, #0056CC 100%);
+    }
+
+    .hero.skip {
+      background: linear-gradient(135deg, #e5e5ea 0%, #d1d1d6 100%);
+    }
+
+    .hero-emoji {
+      font-size: 48px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .hero-status {
+      font-size: 26px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.3px;
+    }
+
+    .hero.skip .hero-status {
+      color: var(--text);
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      margin-top: 4px;
+      color: rgba(255,255,255,0.8);
+      font-weight: 400;
+    }
+
+    .hero.skip .hero-sub {
+      color: var(--text2);
+    }
+
+    .hero-next {
+      margin-top: 14px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero.skip .hero-next {
+      background: rgba(0,0,0,0.06);
+      color: var(--text2);
+    }
+
+    .hero-deco {
+      position: absolute;
+      right: -20px;
+      top: -20px;
+      font-size: 120px;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+
+    /* Section */
+    .section {
+      margin: 0 16px 24px;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text2);
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    /* Calendar */
+    .cal-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      padding: 12px 8px 4px;
+      gap: 4px;
+    }
+
+    .cal-day-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      padding: 4px 8px 14px;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+      transition: transform 0.1s;
+    }
+
+    .cal-cell.empty { background: none; }
+    .cal-cell.past { color: var(--gray2); }
+    .cal-cell.regular { color: var(--text2); }
+
+    .cal-cell.today {
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+    }
+
+    .cal-cell.dose-day:not(.today):not(.past) {
+      background: rgba(0,122,255,0.12);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .cal-cell.dose-day.past {
+      background: rgba(52,199,89,0.12);
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .cal-cell.today.dose-day::after {
+      content: '•';
+      position: absolute;
+      bottom: 1px;
+      font-size: 8px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1;
+    }
+
+    .cal-month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 6px;
+    }
+
+    .cal-month-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nav-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--card2);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--blue);
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-btn:active { background: var(--gray2); }
+
+    /* Upcoming list */
+    .dose-row {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--card2);
+    }
+
+    .dose-row:last-child { border-bottom: none; }
+
+    .dose-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+
+    .dose-dot.blue { background: var(--blue); }
+    .dose-dot.green { background: var(--green); }
+    .dose-dot.gray { background: var(--gray2); }
+
+    .dose-date {
+      flex: 1;
+    }
+
+    .dose-date-main {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .dose-date-sub {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 1px;
+    }
+
+    .dose-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .dose-badge.next { background: rgba(0,122,255,0.1); color: var(--blue); }
+    .dose-badge.done { background: rgba(52,199,89,0.1); color: var(--green); }
+
+    /* Streak */
+    .streak-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .streak-icon {
+      font-size: 36px;
+    }
+
+    .streak-text .num {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--orange);
+      line-height: 1;
+    }
+
+    .streak-text .label {
+      font-size: 13px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    .bottom-safe {
+      height: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    }
+
+    /* Confirm animation */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .hero.animate { animation: pulse 0.3s ease; }
+  </style>
+</head>
+<body>
+
+<div class="status-bar"></div>
+
+<div class="header">
+  <div>
+    <div class="header-title">Médicaments</div>
+    <div class="header-sub" id="today-label"></div>
+  </div>
+</div>
+
+<!-- Hero Card -->
+<div class="hero" id="hero-card">
+  <div class="hero-deco">💊</div>
+  <span class="hero-emoji" id="hero-emoji"></span>
+  <div class="hero-status" id="hero-status"></div>
+  <div class="hero-sub" id="hero-sub"></div>
+  <div class="hero-next" id="hero-next"></div>
+</div>
+
+<!-- Calendar -->
+<div class="section">
+  <div class="section-label">Calendrier</div>
+  <div class="card">
+    <div class="cal-month-nav">
+      <button class="nav-btn" id="prev-month">‹</button>
+      <div class="cal-month-title" id="cal-month-title"></div>
+      <button class="nav-btn" id="next-month">›</button>
+    </div>
+    <div class="cal-header">
+      <div class="cal-day-name">L</div>
+      <div class="cal-day-name">M</div>
+      <div class="cal-day-name">M</div>
+      <div class="cal-day-name">J</div>
+      <div class="cal-day-name">V</div>
+      <div class="cal-day-name">S</div>
+      <div class="cal-day-name">D</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+</div>
+
+<!-- Upcoming doses -->
+<div class="section">
+  <div class="section-label">Prochaines prises</div>
+  <div class="card" id="upcoming-list"></div>
+</div>
+
+<!-- Streak -->
+<div class="section">
+  <div class="section-label">Suivi</div>
+  <div class="streak-card">
+    <div class="streak-icon">🔥</div>
+    <div class="streak-text">
+      <div class="num" id="streak-num">—</div>
+      <div class="label">prises consécutives respectées</div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-safe"></div>
+
+<script>
+  // === CONFIG ===
+  const START_DATE = new Date(2026, 4, 22); // 22 mai 2026 (mois 0-indexed)
+  const INTERVAL = 4; // tous les 4 jours
+
+  // === HELPERS ===
+  function stripTime(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function isDoseDay(date) {
+    const d = stripTime(date);
+    const s = stripTime(START_DATE);
+    const diff = Math.round((d - s) / (1000 * 60 * 60 * 24));
+    return diff >= 0 && diff % INTERVAL === 0;
+  }
+
+  function nextDoseAfter(date) {
+    const d = stripTime(date);
+    let candidate = new Date(d);
+    candidate.setDate(candidate.getDate() + 1);
+    while (!isDoseDay(candidate)) {
+      candidate.setDate(candidate.getDate() + 1);
+    }
+    return candidate;
+  }
+
+  function daysUntil(target) {
+    const today = stripTime(new Date());
+    return Math.round((target - today) / (1000 * 60 * 60 * 24));
+  }
+
+  const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const MOIS_COURT = ['jan.','fév.','mar.','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+
+  function formatDate(d) {
+    return `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`;
+  }
+
+  // === TODAY ===
+  const today = stripTime(new Date());
+  const todayIsDose = isDoseDay(today);
+
+  document.getElementById('today-label').textContent =
+    `${JOURS[today.getDay()]} ${today.getDate()} ${MOIS[today.getMonth()]} ${today.getFullYear()}`;
+
+  // === HERO ===
+  const hero = document.getElementById('hero-card');
+  if (todayIsDose) {
+    hero.classList.add('take');
+    document.getElementById('hero-emoji').textContent = '💊';
+    document.getElementById('hero-status').textContent = "C'est le jour J !";
+    document.getElementById('hero-sub').textContent = 'Pensez à prendre votre médicament aujourd\'hui.';
+    const next = nextDoseAfter(today);
+    document.getElementById('hero-next').innerHTML = `📅 Prochaine prise : ${formatDate(next)}`;
+  } else {
+    hero.classList.add('skip');
+    document.getElementById('hero-emoji').textContent = '😌';
+    document.getElementById('hero-status').textContent = 'Pas de prise aujourd\'hui';
+    const next = nextDoseAfter(today);
+    const days = daysUntil(next);
+    document.getElementById('hero-sub').textContent = `Vous pouvez souffler.`;
+    document.getElementById('hero-next').innerHTML =
+      `📅 Prochaine prise dans ${days} jour${days > 1 ? 's' : ''} — ${formatDate(next)}`;
+  }
+
+  // === CALENDAR ===
+  let calYear = today.getFullYear();
+  let calMonth = today.getMonth();
+
+  function renderCalendar() {
+    document.getElementById('cal-month-title').textContent =
+      `${MOIS[calMonth].charAt(0).toUpperCase() + MOIS[calMonth].slice(1)} ${calYear}`;
+
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+
+    const firstDay = new Date(calYear, calMonth, 1);
+    // Monday = 0 offset
+    let startDow = firstDay.getDay(); // 0=Sun
+    startDow = (startDow + 6) % 7; // convert to Mon=0
+
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+    // Empty cells
+    for (let i = 0; i < startDow; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-cell empty';
+      grid.appendChild(el);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(calYear, calMonth, d);
+      const el = document.createElement('div');
+      el.className = 'cal-cell';
+      el.textContent = d;
+
+      const isToday = date.getTime() === today.getTime();
+      const isPast = date < today;
+      const isDose = isDoseDay(date);
+
+      if (isToday) el.classList.add('today');
+      else if (isPast) el.classList.add('past');
+      else el.classList.add('regular');
+
+      if (isDose) el.classList.add('dose-day');
+
+      grid.appendChild(el);
+    }
+  }
+
+  document.getElementById('prev-month').addEventListener('click', () => {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  });
+
+  document.getElementById('next-month').addEventListener('click', () => {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderCalendar();
+  });
+
+  renderCalendar();
+
+  // === UPCOMING ===
+  function renderUpcoming() {
+    const list = document.getElementById('upcoming-list');
+    list.innerHTML = '';
+
+    // Get last 2 past doses + next 4 upcoming
+    const doses = [];
+
+    // Past doses (last 2)
+    let d = new Date(today);
+    d.setDate(d.getDate() - 1);
+    let pastCount = 0;
+    while (pastCount < 2) {
+      if (isDoseDay(d) && d >= stripTime(START_DATE)) {
+        doses.unshift({ date: new Date(d), type: 'done' });
+        pastCount++;
+      }
+      d.setDate(d.getDate() - 1);
+      if (d < stripTime(START_DATE)) break;
+    }
+
+    // Today if dose
+    if (todayIsDose) doses.push({ date: new Date(today), type: 'today' });
+
+    // Next 5 upcoming
+    let upcoming = new Date(today);
+    upcoming.setDate(upcoming.getDate() + (todayIsDose ? 1 : 0));
+    let count = 0;
+    while (count < 5) {
+      if (!todayIsDose || upcoming > today) {
+        // find next
+      }
+      if (isDoseDay(upcoming) && upcoming > today) {
+        doses.push({ date: new Date(upcoming), type: 'next' });
+        count++;
+      }
+      upcoming.setDate(upcoming.getDate() + 1);
+    }
+
+    doses.forEach((item, i) => {
+      const row = document.createElement('div');
+      row.className = 'dose-row';
+
+      const dot = document.createElement('div');
+      dot.className = 'dose-dot';
+      if (item.type === 'done') dot.classList.add('green');
+      else if (item.type === 'today') dot.classList.add('blue');
+      else dot.classList.add('gray');
+
+      const dateDiv = document.createElement('div');
+      dateDiv.className = 'dose-date';
+
+      const isToday2 = item.date.getTime() === today.getTime();
+      const label = isToday2 ? "Aujourd'hui" : formatDate(item.date);
+      const daysAway = daysUntil(item.date);
+
+      dateDiv.innerHTML = `
+        <div class="dose-date-main">${label}</div>
+        <div class="dose-date-sub">${item.type === 'done' ? 'Prise effectuée' : (isToday2 ? 'À prendre aujourd\'hui' : `Dans ${daysAway} jour${daysAway > 1 ? 's' : ''}`)}</div>
+      `;
+
+      const badge = document.createElement('div');
+      badge.className = 'dose-badge';
+      if (item.type === 'done') {
+        badge.classList.add('done');
+        badge.textContent = '✓ Pris';
+      } else if (item.type === 'today') {
+        badge.classList.add('next');
+        badge.textContent = '💊 Aujourd\'hui';
+      } else if (i === doses.findIndex(x => x.type === 'next')) {
+        badge.classList.add('next');
+        badge.textContent = 'Prochain';
+      } else {
+        badge.style.color = 'var(--gray2)';
+        badge.textContent = `J+${daysUntil(item.date)}`;
+      }
+
+      row.appendChild(dot);
+      row.appendChild(dateDiv);
+      row.appendChild(badge);
+      list.appendChild(row);
+    });
+  }
+
+  renderUpcoming();
+
+  // === STREAK (how many past doses since start) ===
+  function calcStreak() {
+    let count = 0;
+    let d = new Date(today);
+    while (d >= stripTime(START_DATE)) {
+      if (isDoseDay(d)) count++;
+      d.setDate(d.getDate() - 1);
+    }
+    return count;
+  }
+  document.getElementById('streak-num').textContent = calcStreak();
+</script>
+</body>
+</html>
