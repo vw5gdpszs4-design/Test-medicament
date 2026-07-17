@@ -410,6 +410,50 @@
     .preset-manage-row .px {
       border: none; background: none; color: var(--red); font-size: 20px; cursor: pointer; padding: 4px 6px;
     }
+    .preset-manage-row .px.link-btn { color: var(--blue); font-size: 17px; }
+
+    .hint-text {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.45;
+      margin-bottom: 10px;
+      padding-left: 2px;
+    }
+
+    /* Quick-add confirmation overlay (opened via Shortcuts link) */
+    .quickadd-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, var(--cyan), var(--blue-dark));
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      padding: 0 30px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .quickadd-overlay.show { opacity: 1; pointer-events: auto; transform: scale(1); }
+    .qa-check { font-size: 54px; margin-bottom: 6px; }
+    .qa-emoji { font-size: 64px; margin-bottom: 14px; }
+    .qa-title { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+    .qa-sub { font-size: 15px; color: rgba(255,255,255,0.85); margin-top: 8px; margin-bottom: 30px; }
+    .qa-close-btn {
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 34px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .qa-close-btn:active { background: rgba(255,255,255,0.3); }
 
     .toast {
       position: fixed;
@@ -534,9 +578,22 @@
     <div class="field-label">Raccourcis</div>
     <div class="card" id="preset-manage-list"></div>
 
+    <div class="field-label">Liens rapides (app Raccourcis)</div>
+    <div class="hint-text">Copie un lien, colle-le dans un Raccourci Siri (action « Ouvrir les URL »), puis ajoute ce raccourci au widget « Raccourcis » de ton écran d'accueil pour ajouter cette boisson en un tap.</div>
+    <div class="card" id="quicklink-list"></div>
+
     <button class="sheet-btn" id="save-settings-btn">Enregistrer</button>
     <button class="sheet-btn secondary" id="close-settings-btn">Fermer</button>
   </div>
+</div>
+
+<!-- Quick-add confirmation (triggered via ?emoji=&label=&ml= link, e.g. from a Shortcut) -->
+<div class="quickadd-overlay" id="quickadd-overlay">
+  <div class="qa-check">✅</div>
+  <div class="qa-emoji" id="qa-emoji"></div>
+  <div class="qa-title" id="qa-title"></div>
+  <div class="qa-sub" id="qa-sub"></div>
+  <button class="qa-close-btn" id="qa-close-btn">OK</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -858,9 +915,48 @@
     });
   }
 
+  function buildQuickLink(p) {
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.searchParams.set('emoji', p.emoji);
+    if (p.label) url.searchParams.set('label', p.label);
+    url.searchParams.set('ml', p.ml);
+    return url.toString();
+  }
+
+  function renderQuickLinksList() {
+    const list = document.getElementById('quicklink-list');
+    list.innerHTML = '';
+    if (presets.length === 0) {
+      list.innerHTML = `<div class="empty-state">Aucun raccourci</div>`;
+      return;
+    }
+    presets.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'preset-manage-row';
+      row.innerHTML = `
+        <span class="pe">${p.emoji}</span>
+        <span class="pl">${p.label}</span>
+        <span class="pm">${p.ml} ml</span>
+        <button class="px link-btn" data-url="${buildQuickLink(p)}">🔗</button>
+      `;
+      row.querySelector('.link-btn').addEventListener('click', async (e) => {
+        const url = e.currentTarget.getAttribute('data-url');
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast('Lien copié ✔️');
+        } catch (err) {
+          showToast('Copie impossible sur ce navigateur');
+        }
+      });
+      list.appendChild(row);
+    });
+  }
+
   function openSettingsModal() {
     document.getElementById('goal-value').value = goal;
     renderPresetManageList();
+    renderQuickLinksList();
     settingsOverlay.classList.add('open');
   }
   function closeSettingsModal() {
@@ -892,8 +988,43 @@
     showToast('Objectif mis à jour');
   });
 
+  // ==================== QUICK ADD VIA URL (Shortcuts) ====================
+  // Opening the app with ?emoji=..&label=..&ml=250 logs that drink immediately,
+  // so a Siri Shortcut ("Ouvrir les URL") pinned to the Shortcuts home-screen
+  // widget can add a drink in one tap.
+  let pendingQuickAdd = null;
+
+  function checkQuickAddFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('ml')) return;
+    const ml = parseInt(params.get('ml'), 10);
+    if (!ml || ml <= 0) return;
+    const emoji = params.get('emoji') || '💧';
+    const label = (params.get('label') || '').trim();
+
+    addEntry(emoji, label, ml);
+    history.replaceState({}, document.title, window.location.pathname);
+    pendingQuickAdd = { emoji, label: label || defaultLabelFor(emoji), ml };
+  }
+
+  function showQuickAddOverlay() {
+    if (!pendingQuickAdd) return;
+    const { emoji, label, ml } = pendingQuickAdd;
+    document.getElementById('qa-emoji').textContent = emoji;
+    document.getElementById('qa-title').textContent = `${label} ajouté`;
+    document.getElementById('qa-sub').textContent =
+      `+${ml} ml · Total du jour : ${totalFor(todayKey)} / ${goal} ml`;
+    document.getElementById('quickadd-overlay').classList.add('show');
+  }
+
+  document.getElementById('qa-close-btn').addEventListener('click', () => {
+    document.getElementById('quickadd-overlay').classList.remove('show');
+  });
+
   // ==================== INIT ====================
+  checkQuickAddFromURL();
   refreshAll();
+  showQuickAddOverlay();
 </script>
 </body>
 </html>
