@@ -5,29 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Médicaments">
+  <meta name="apple-mobile-web-app-title" content="Hydratation">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#f5f5f7">
-  <title>Médicaments</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#f5f8fc">
+  <title>Hydratation</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     :root {
-      --bg: #f5f5f7;
+      --bg: #f5f8fc;
       --card: #ffffff;
-      --card2: #f2f2f7;
-      --blue: #007AFF;
+      --card2: #eef4fa;
+      --blue: #0A84FF;
+      --blue-dark: #0060DF;
+      --cyan: #32ADE6;
       --green: #34C759;
-      --red: #FF3B30;
       --orange: #FF9500;
+      --red: #FF3B30;
       --gray: #8e8e93;
-      --gray2: #c7c7cc;
+      --gray2: #d1d6dd;
       --text: #1d1d1f;
       --text2: #6e6e73;
-      --radius: 18px;
-      --shadow: 0 2px 20px rgba(0,0,0,0.08);
+      --radius: 20px;
+      --shadow: 0 2px 20px rgba(10,60,120,0.08);
     }
 
     body {
@@ -35,113 +35,97 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
-      padding: 0;
       -webkit-font-smoothing: antialiased;
+      padding-bottom: 40px;
     }
 
-    /* Top status area */
-    .status-bar {
-      height: env(safe-area-inset-top, 44px);
-      background: var(--bg);
-    }
+    .status-bar { height: env(safe-area-inset-top, 44px); }
 
     .header {
-      padding: 12px 20px 8px;
+      padding: 10px 20px 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .header-title {
-      font-size: 34px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      color: var(--text);
-    }
+    .header-title { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; }
+    .header-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
 
-    .header-sub {
-      font-size: 13px;
-      color: var(--text2);
-      margin-top: 2px;
-    }
-
-    /* Hero card */
-    .hero {
-      margin: 0 16px 16px;
-      border-radius: var(--radius);
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--card);
+      border: none;
       box-shadow: var(--shadow);
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--blue);
+    }
+    .icon-btn:active { transform: scale(0.92); }
+
+    /* Ring hero */
+    .hero {
+      margin: 6px 16px 18px;
+      border-radius: var(--radius);
+      padding: 26px 20px 22px;
+      background: linear-gradient(160deg, #ffffff 0%, #eef7ff 100%);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
 
-    .hero.take {
-      background: linear-gradient(135deg, #007AFF 0%, #0056CC 100%);
+    .ring-wrap { position: relative; width: 190px; height: 190px; }
+    .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: var(--card2); stroke-width: 14; }
+    .ring-fg {
+      fill: none;
+      stroke: url(#ringGradient);
+      stroke-width: 14;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s cubic-bezier(.4,0,.2,1);
     }
 
-    .hero.skip {
-      background: linear-gradient(135deg, #e5e5ea 0%, #d1d1d6 100%);
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    .hero-emoji {
-      font-size: 48px;
-      margin-bottom: 10px;
-      display: block;
+    .ring-amount { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
+    .ring-amount .unit { font-size: 15px; font-weight: 500; color: var(--text2); }
+    .ring-goal-line { font-size: 13px; color: var(--text2); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+    .ring-goal-line button {
+      border: none;
+      background: none;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 4px;
     }
 
     .hero-status {
-      font-size: 26px;
-      font-weight: 700;
-      color: white;
-      letter-spacing: -0.3px;
-    }
-
-    .hero.skip .hero-status {
-      color: var(--text);
-    }
-
-    .hero-sub {
-      font-size: 14px;
-      margin-top: 4px;
-      color: rgba(255,255,255,0.8);
-      font-weight: 400;
-    }
-
-    .hero.skip .hero-sub {
-      color: var(--text2);
-    }
-
-    .hero-next {
       margin-top: 14px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: white;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 7px 16px;
+      border-radius: 20px;
+      background: var(--card2);
+      color: var(--blue-dark);
     }
-
-    .hero.skip .hero-next {
-      background: rgba(0,0,0,0.06);
-      color: var(--text2);
-    }
-
-    .hero-deco {
-      position: absolute;
-      right: -20px;
-      top: -20px;
-      font-size: 120px;
-      opacity: 0.08;
-      pointer-events: none;
-    }
+    .hero-status.done { background: rgba(52,199,89,0.14); color: var(--green); }
 
     /* Section */
-    .section {
-      margin: 0 16px 24px;
-    }
-
+    .section { margin: 0 16px 22px; }
     .section-label {
       font-size: 13px;
       font-weight: 600;
@@ -152,199 +136,343 @@
       padding-left: 4px;
     }
 
-    .card {
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+
+    /* Preset grid */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .preset-btn {
       background: var(--card);
-      border-radius: var(--radius);
-      overflow: hidden;
+      border: none;
+      border-radius: 16px;
       box-shadow: var(--shadow);
+      padding: 14px 6px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: transform 0.12s;
     }
+    .preset-btn:active { transform: scale(0.92); background: var(--card2); }
+    .preset-emoji { font-size: 26px; }
+    .preset-label { font-size: 12px; font-weight: 600; color: var(--text); }
+    .preset-ml { font-size: 11px; color: var(--text2); }
 
-    /* Calendar */
-    .cal-header {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
+    .preset-btn.add {
+      background: var(--card2);
+      border: 2px dashed var(--gray2);
+      box-shadow: none;
+      color: var(--blue);
+    }
+    .preset-btn.add .preset-emoji { font-size: 22px; color: var(--blue); }
+    .preset-btn.add .preset-label { color: var(--blue); }
+
+    /* Log rows */
+    .log-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--card2);
+      gap: 12px;
+    }
+    .log-row:last-child { border-bottom: none; }
+    .log-emoji { font-size: 22px; width: 30px; text-align: center; }
+    .log-mid { flex: 1; }
+    .log-label { font-size: 15px; font-weight: 500; }
+    .log-time { font-size: 12px; color: var(--text2); margin-top: 1px; }
+    .log-amount { font-size: 15px; font-weight: 600; color: var(--blue-dark); }
+    .log-del {
+      border: none;
+      background: none;
+      color: var(--gray2);
+      font-size: 20px;
+      line-height: 1;
+      padding: 4px 2px 4px 10px;
+      cursor: pointer;
+    }
+    .log-del:active { color: var(--red); }
+
+    .empty-state {
+      padding: 30px 16px;
       text-align: center;
-      padding: 12px 8px 4px;
-      gap: 4px;
-    }
-
-    .cal-day-name {
-      font-size: 11px;
-      font-weight: 600;
       color: var(--text2);
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
+      font-size: 14px;
     }
 
-    .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      padding: 4px 8px 14px;
+    /* Week chart */
+    .week-card { padding: 18px 16px 14px; }
+    .week-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 110px;
+      gap: 8px;
     }
+    .week-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+    .week-bar-track { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+    .week-bar {
+      width: 60%;
+      border-radius: 6px 6px 3px 3px;
+      background: var(--card2);
+      transition: height 0.4s ease;
+      min-height: 4px;
+    }
+    .week-bar.hit { background: linear-gradient(180deg, var(--cyan), var(--blue)); }
+    .week-bar.today-bar { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .week-daylabel { font-size: 11px; color: var(--text2); margin-top: 6px; font-weight: 600; }
 
-    .cal-cell {
-      aspect-ratio: 1;
+    /* FAB */
+    .fab {
+      position: fixed;
+      right: 20px;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: white;
+      border: none;
+      font-size: 30px;
+      font-weight: 300;
+      box-shadow: 0 6px 20px rgba(10,132,255,0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
+      cursor: pointer;
+      z-index: 20;
+    }
+    .fab:active { transform: scale(0.94); }
+
+    /* Modal */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+      z-index: 30;
+      display: flex;
+      align-items: flex-end;
+    }
+    .overlay.open { opacity: 1; pointer-events: auto; }
+
+    .sheet {
+      background: var(--bg);
+      width: 100%;
+      border-radius: 22px 22px 0 0;
+      padding: 10px 18px calc(env(safe-area-inset-bottom, 0px) + 20px);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(.32,.72,0,1);
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .overlay.open .sheet { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--gray2);
+      margin: 6px auto 14px;
+    }
+
+    .sheet-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .chip {
+      border: none;
+      background: var(--card2);
+      color: var(--text);
       font-size: 14px;
-      font-weight: 500;
-      position: relative;
-      transition: transform 0.1s;
-    }
-
-    .cal-cell.empty { background: none; }
-    .cal-cell.past { color: var(--gray2); }
-    .cal-cell.regular { color: var(--text2); }
-
-    .cal-cell.today {
-      background: var(--blue);
-      color: white;
-      font-weight: 700;
-    }
-
-    .cal-cell.dose-day:not(.today):not(.past) {
-      background: rgba(0,122,255,0.12);
-      color: var(--blue);
-      font-weight: 700;
-    }
-
-    .cal-cell.dose-day.past {
-      background: rgba(52,199,89,0.12);
-      color: var(--green);
       font-weight: 600;
+      padding: 9px 14px;
+      border-radius: 20px;
+      cursor: pointer;
     }
+    .chip.selected { background: var(--blue); color: white; }
 
-    .cal-cell.today.dose-day::after {
-      content: '•';
-      position: absolute;
-      bottom: 1px;
-      font-size: 8px;
-      color: rgba(255,255,255,0.7);
-      line-height: 1;
+    .field-label { font-size: 13px; font-weight: 600; color: var(--text2); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .amount-input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card);
+      border-radius: 14px;
+      padding: 8px 10px;
+      box-shadow: var(--shadow);
     }
+    .stepper-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: var(--card2);
+      color: var(--blue);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .stepper-btn:active { background: var(--gray2); }
+    .amount-input {
+      flex: 1;
+      border: none;
+      background: none;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+    }
+    .amount-unit { font-size: 14px; color: var(--text2); font-weight: 600; }
 
-    .cal-month-nav {
+    .text-input {
+      width: 100%;
+      border: none;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+    }
+    .text-input::placeholder { color: var(--gray); }
+
+    .switch-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px 6px;
-    }
-
-    .cal-month-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .nav-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--card2);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin-top: 16px;
       font-size: 14px;
-      color: var(--blue);
-      transition: background 0.15s;
-      -webkit-tap-highlight-color: transparent;
+      font-weight: 500;
     }
-
-    .nav-btn:active { background: var(--gray2); }
-
-    /* Upcoming list */
-    .dose-row {
-      display: flex;
-      align-items: center;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--card2);
-    }
-
-    .dose-row:last-child { border-bottom: none; }
-
-    .dose-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 14px;
+    .switch {
+      width: 46px;
+      height: 28px;
+      border-radius: 16px;
+      background: var(--gray2);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
       flex-shrink: 0;
     }
-
-    .dose-dot.blue { background: var(--blue); }
-    .dose-dot.green { background: var(--green); }
-    .dose-dot.gray { background: var(--gray2); }
-
-    .dose-date {
-      flex: 1;
+    .switch.on { background: var(--green); }
+    .switch-knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      transition: left 0.2s;
     }
+    .switch.on .switch-knob { left: 20px; }
 
-    .dose-date-main {
-      font-size: 15px;
-      font-weight: 500;
+    .sheet-btn {
+      width: 100%;
+      margin-top: 20px;
+      border: none;
+      border-radius: 14px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      cursor: pointer;
+    }
+    .sheet-btn:active { opacity: 0.85; }
+    .sheet-btn.secondary {
+      background: var(--card2);
       color: var(--text);
     }
 
-    .dose-date-sub {
-      font-size: 12px;
-      color: var(--text2);
-      margin-top: 1px;
-    }
-
-    .dose-badge {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-    }
-
-    .dose-badge.next { background: rgba(0,122,255,0.1); color: var(--blue); }
-    .dose-badge.done { background: rgba(52,199,89,0.1); color: var(--green); }
-
-    /* Streak */
-    .streak-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px 20px;
-      box-shadow: var(--shadow);
+    .preset-manage-row {
       display: flex;
       align-items: center;
-      gap: 16px;
+      padding: 10px 4px;
+      border-bottom: 1px solid var(--card2);
+      gap: 10px;
     }
-
-    .streak-icon {
-      font-size: 36px;
+    .preset-manage-row:last-child { border-bottom: none; }
+    .preset-manage-row .pe { font-size: 20px; width: 26px; text-align: center; }
+    .preset-manage-row .pl { flex: 1; font-size: 14px; font-weight: 500; }
+    .preset-manage-row .pm { font-size: 13px; color: var(--text2); }
+    .preset-manage-row .px {
+      border: none; background: none; color: var(--red); font-size: 20px; cursor: pointer; padding: 4px 6px;
     }
+    .preset-manage-row .px.link-btn { color: var(--blue); font-size: 17px; }
 
-    .streak-text .num {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--orange);
-      line-height: 1;
-    }
-
-    .streak-text .label {
-      font-size: 13px;
+    .hint-text {
+      font-size: 12px;
       color: var(--text2);
-      margin-top: 2px;
+      line-height: 1.45;
+      margin-bottom: 10px;
+      padding-left: 2px;
     }
 
-    .bottom-safe {
-      height: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    /* Quick-add confirmation overlay (opened via Shortcuts link) */
+    .quickadd-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, var(--cyan), var(--blue-dark));
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      padding: 0 30px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97);
+      transition: opacity 0.25s, transform 0.25s;
     }
-
-    /* Confirm animation */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.04); }
-      100% { transform: scale(1); }
+    .quickadd-overlay.show { opacity: 1; pointer-events: auto; transform: scale(1); }
+    .qa-check { font-size: 54px; margin-bottom: 6px; }
+    .qa-emoji { font-size: 64px; margin-bottom: 14px; }
+    .qa-title { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+    .qa-sub { font-size: 15px; color: rgba(255,255,255,0.85); margin-top: 8px; margin-bottom: 30px; }
+    .qa-close-btn {
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 34px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
     }
+    .qa-close-btn:active { background: rgba(255,255,255,0.3); }
 
-    .hero.animate { animation: pulse 0.3s ease; }
+    .toast {
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 44px) + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--text);
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 14px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 50;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -353,285 +481,550 @@
 
 <div class="header">
   <div>
-    <div class="header-title">Médicaments</div>
+    <div class="header-title">Hydratation</div>
     <div class="header-sub" id="today-label"></div>
   </div>
+  <button class="icon-btn" id="settings-btn">⚙️</button>
 </div>
 
-<!-- Hero Card -->
-<div class="hero" id="hero-card">
-  <div class="hero-deco">💊</div>
-  <span class="hero-emoji" id="hero-emoji"></span>
-  <div class="hero-status" id="hero-status"></div>
-  <div class="hero-sub" id="hero-sub"></div>
-  <div class="hero-next" id="hero-next"></div>
+<!-- Ring hero -->
+<div class="hero">
+  <div class="ring-wrap">
+    <svg viewBox="0 0 190 190">
+      <defs>
+        <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#32ADE6"/>
+          <stop offset="100%" stop-color="#0A84FF"/>
+        </linearGradient>
+      </defs>
+      <circle class="ring-bg" cx="95" cy="95" r="82"></circle>
+      <circle class="ring-fg" id="ring-fg" cx="95" cy="95" r="82"></circle>
+    </svg>
+    <div class="ring-center">
+      <div class="ring-amount"><span id="ring-total">0</span><span class="unit"> ml</span></div>
+      <div class="ring-goal-line">objectif <button id="goal-edit-btn"><span id="ring-goal">2000</span> ml ✎</button></div>
+    </div>
+  </div>
+  <div class="hero-status" id="hero-status">Continue à boire !</div>
 </div>
 
-<!-- Calendar -->
+<!-- Presets -->
 <div class="section">
-  <div class="section-label">Calendrier</div>
-  <div class="card">
-    <div class="cal-month-nav">
-      <button class="nav-btn" id="prev-month">‹</button>
-      <div class="cal-month-title" id="cal-month-title"></div>
-      <button class="nav-btn" id="next-month">›</button>
-    </div>
-    <div class="cal-header">
-      <div class="cal-day-name">L</div>
-      <div class="cal-day-name">M</div>
-      <div class="cal-day-name">M</div>
-      <div class="cal-day-name">J</div>
-      <div class="cal-day-name">V</div>
-      <div class="cal-day-name">S</div>
-      <div class="cal-day-name">D</div>
-    </div>
-    <div class="cal-grid" id="cal-grid"></div>
+  <div class="section-label">Ajouter une boisson</div>
+  <div class="preset-grid" id="preset-grid"></div>
+</div>
+
+<!-- Today's log -->
+<div class="section">
+  <div class="section-label">Aujourd'hui</div>
+  <div class="card" id="log-list"></div>
+</div>
+
+<!-- Week chart -->
+<div class="section">
+  <div class="section-label">7 derniers jours</div>
+  <div class="card week-card">
+    <div class="week-bars" id="week-bars"></div>
   </div>
 </div>
 
-<!-- Upcoming doses -->
-<div class="section">
-  <div class="section-label">Prochaines prises</div>
-  <div class="card" id="upcoming-list"></div>
-</div>
+<button class="fab" id="fab-btn">+</button>
 
-<!-- Streak -->
-<div class="section">
-  <div class="section-label">Suivi</div>
-  <div class="streak-card">
-    <div class="streak-icon">🔥</div>
-    <div class="streak-text">
-      <div class="num" id="streak-num">—</div>
-      <div class="label">prises consécutives respectées</div>
+<!-- Add drink modal -->
+<div class="overlay" id="add-overlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Ajouter une boisson</div>
+
+    <div class="field-label">Type</div>
+    <div class="chip-row" id="add-emoji-row"></div>
+
+    <div class="field-label">Nom (optionnel)</div>
+    <input type="text" class="text-input" id="add-label-input" placeholder="Ex : Eau pétillante">
+
+    <div class="field-label">Quantité</div>
+    <div class="chip-row" id="add-amount-chips"></div>
+    <div class="amount-input-row">
+      <button class="stepper-btn" id="amount-minus">–</button>
+      <input type="number" class="amount-input" id="amount-value" value="250" inputmode="numeric">
+      <span class="amount-unit">ml</span>
+      <button class="stepper-btn" id="amount-plus">+</button>
     </div>
+
+    <div class="switch-row">
+      <span>Enregistrer comme raccourci</span>
+      <div class="switch" id="save-shortcut-switch"><div class="switch-knob"></div></div>
+    </div>
+
+    <button class="sheet-btn" id="confirm-add-btn">Ajouter</button>
+    <button class="sheet-btn secondary" id="cancel-add-btn">Annuler</button>
   </div>
 </div>
 
-<div class="bottom-safe"></div>
+<!-- Settings modal -->
+<div class="overlay" id="settings-overlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Réglages</div>
+
+    <div class="field-label">Objectif quotidien</div>
+    <div class="amount-input-row">
+      <button class="stepper-btn" id="goal-minus">–</button>
+      <input type="number" class="amount-input" id="goal-value" inputmode="numeric">
+      <span class="amount-unit">ml</span>
+      <button class="stepper-btn" id="goal-plus">+</button>
+    </div>
+
+    <div class="field-label">Raccourcis</div>
+    <div class="card" id="preset-manage-list"></div>
+
+    <div class="field-label">Liens rapides (app Raccourcis)</div>
+    <div class="hint-text">Copie un lien, colle-le dans un Raccourci Siri (action « Ouvrir les URL »), puis ajoute ce raccourci au widget « Raccourcis » de ton écran d'accueil pour ajouter cette boisson en un tap.</div>
+    <div class="card" id="quicklink-list"></div>
+
+    <button class="sheet-btn" id="save-settings-btn">Enregistrer</button>
+    <button class="sheet-btn secondary" id="close-settings-btn">Fermer</button>
+  </div>
+</div>
+
+<!-- Quick-add confirmation (triggered via ?emoji=&label=&ml= link, e.g. from a Shortcut) -->
+<div class="quickadd-overlay" id="quickadd-overlay">
+  <div class="qa-check">✅</div>
+  <div class="qa-emoji" id="qa-emoji"></div>
+  <div class="qa-title" id="qa-title"></div>
+  <div class="qa-sub" id="qa-sub"></div>
+  <button class="qa-close-btn" id="qa-close-btn">OK</button>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-  // === CONFIG ===
-  const START_DATE = new Date(2026, 4, 22); // 22 mai 2026 (mois 0-indexed)
-  const INTERVAL = 4; // tous les 4 jours
+  // ==================== DATA LAYER ====================
+  const DEFAULT_GOAL = 2000;
+  const DEFAULT_PRESETS = [
+    { emoji: '💧', label: 'Gorgée', ml: 50 },
+    { emoji: '🥛', label: "Verre d'eau", ml: 250 },
+    { emoji: '🍶', label: 'Bouteille', ml: 500 },
+    { emoji: '☕', label: 'Café', ml: 100 },
+    { emoji: '🍵', label: 'Thé', ml: 200 },
+    { emoji: '🥤', label: 'Soda', ml: 330 },
+    { emoji: '🧃', label: 'Jus', ml: 200 },
+  ];
+  const EMOJI_CHOICES = ['💧','🥛','🍶','☕','🍵','🥤','🧃','🍷','🍺','🥃','🧊','🍹'];
+  const AMOUNT_CHOICES = [50, 100, 150, 200, 250, 330, 500, 750, 1000];
 
-  // === HELPERS ===
-  function stripTime(d) {
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  function loadJSON(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+  function saveJSON(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
   }
 
-  function isDoseDay(date) {
-    const d = stripTime(date);
-    const s = stripTime(START_DATE);
-    const diff = Math.round((d - s) / (1000 * 60 * 60 * 24));
-    return diff >= 0 && diff % INTERVAL === 0;
+  let goal = loadJSON('hydra_goal', DEFAULT_GOAL);
+  let presets = loadJSON('hydra_presets', DEFAULT_PRESETS);
+  let logs = loadJSON('hydra_log', {}); // { 'YYYY-MM-DD': [{id,time,emoji,label,ml}] }
+
+  function dateKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 
-  function nextDoseAfter(date) {
-    const d = stripTime(date);
-    let candidate = new Date(d);
-    candidate.setDate(candidate.getDate() + 1);
-    while (!isDoseDay(candidate)) {
-      candidate.setDate(candidate.getDate() + 1);
-    }
-    return candidate;
+  const today = new Date();
+  const todayKey = dateKey(today);
+
+  function getTodayEntries() {
+    return logs[todayKey] || [];
   }
 
-  function daysUntil(target) {
-    const today = stripTime(new Date());
-    return Math.round((target - today) / (1000 * 60 * 60 * 24));
+  function totalFor(key) {
+    return (logs[key] || []).reduce((sum, e) => sum + e.ml, 0);
   }
 
+  function addEntry(emoji, label, ml) {
+    if (!logs[todayKey]) logs[todayKey] = [];
+    const now = new Date();
+    logs[todayKey].push({
+      id: Date.now() + Math.random().toString(36).slice(2, 7),
+      time: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0'),
+      emoji, label: label || '', ml
+    });
+    saveJSON('hydra_log', logs);
+  }
+
+  function deleteEntry(id) {
+    logs[todayKey] = (logs[todayKey] || []).filter(e => e.id !== id);
+    saveJSON('hydra_log', logs);
+  }
+
+  // ==================== UI HELPERS ====================
   const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const JOURS_COURT = ['D','L','M','M','J','V','S'];
   const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  const MOIS_COURT = ['jan.','fév.','mar.','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
-
-  function formatDate(d) {
-    return `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`;
-  }
-
-  // === TODAY ===
-  const today = stripTime(new Date());
-  const todayIsDose = isDoseDay(today);
 
   document.getElementById('today-label').textContent =
-    `${JOURS[today.getDay()]} ${today.getDate()} ${MOIS[today.getMonth()]} ${today.getFullYear()}`;
+    `${JOURS[today.getDay()]} ${today.getDate()} ${MOIS[today.getMonth()]}`;
 
-  // === HERO ===
-  const hero = document.getElementById('hero-card');
-  if (todayIsDose) {
-    hero.classList.add('take');
-    document.getElementById('hero-emoji').textContent = '💊';
-    document.getElementById('hero-status').textContent = "C'est le jour J !";
-    document.getElementById('hero-sub').textContent = 'Pensez à prendre votre médicament aujourd\'hui.';
-    const next = nextDoseAfter(today);
-    document.getElementById('hero-next').innerHTML = `📅 Prochaine prise : ${formatDate(next)}`;
-  } else {
-    hero.classList.add('skip');
-    document.getElementById('hero-emoji').textContent = '😌';
-    document.getElementById('hero-status').textContent = 'Pas de prise aujourd\'hui';
-    const next = nextDoseAfter(today);
-    const days = daysUntil(next);
-    document.getElementById('hero-sub').textContent = `Vous pouvez souffler.`;
-    document.getElementById('hero-next').innerHTML =
-      `📅 Prochaine prise dans ${days} jour${days > 1 ? 's' : ''} — ${formatDate(next)}`;
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  // === CALENDAR ===
-  let calYear = today.getFullYear();
-  let calMonth = today.getMonth();
+  // ==================== RING ====================
+  const RADIUS = 82;
+  const CIRCUM = 2 * Math.PI * RADIUS;
+  const ringFg = document.getElementById('ring-fg');
+  ringFg.style.strokeDasharray = `${CIRCUM}`;
 
-  function renderCalendar() {
-    document.getElementById('cal-month-title').textContent =
-      `${MOIS[calMonth].charAt(0).toUpperCase() + MOIS[calMonth].slice(1)} ${calYear}`;
+  let goalReachedToastShown = false;
 
-    const grid = document.getElementById('cal-grid');
+  function renderRing() {
+    const total = totalFor(todayKey);
+    const pct = Math.min(total / goal, 1);
+    const offset = CIRCUM * (1 - pct);
+    ringFg.style.strokeDashoffset = offset;
+
+    document.getElementById('ring-total').textContent = total;
+    document.getElementById('ring-goal').textContent = goal;
+
+    const statusEl = document.getElementById('hero-status');
+    if (total >= goal) {
+      statusEl.textContent = '🎉 Objectif atteint !';
+      statusEl.classList.add('done');
+      if (!goalReachedToastShown && total - (getTodayEntries().slice(-1)[0]?.ml || 0) < goal) {
+        goalReachedToastShown = true;
+        showToast('🎉 Objectif du jour atteint !');
+      }
+    } else {
+      const remaining = goal - total;
+      statusEl.textContent = `Encore ${remaining} ml pour atteindre l'objectif`;
+      statusEl.classList.remove('done');
+    }
+  }
+
+  // ==================== PRESET GRID ====================
+  function renderPresetGrid() {
+    const grid = document.getElementById('preset-grid');
     grid.innerHTML = '';
-
-    const firstDay = new Date(calYear, calMonth, 1);
-    // Monday = 0 offset
-    let startDow = firstDay.getDay(); // 0=Sun
-    startDow = (startDow + 6) % 7; // convert to Mon=0
-
-    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-
-    // Empty cells
-    for (let i = 0; i < startDow; i++) {
-      const el = document.createElement('div');
-      el.className = 'cal-cell empty';
-      grid.appendChild(el);
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(calYear, calMonth, d);
-      const el = document.createElement('div');
-      el.className = 'cal-cell';
-      el.textContent = d;
-
-      const isToday = date.getTime() === today.getTime();
-      const isPast = date < today;
-      const isDose = isDoseDay(date);
-
-      if (isToday) el.classList.add('today');
-      else if (isPast) el.classList.add('past');
-      else el.classList.add('regular');
-
-      if (isDose) el.classList.add('dose-day');
-
-      grid.appendChild(el);
-    }
+    presets.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'preset-btn';
+      btn.innerHTML = `<span class="preset-emoji">${p.emoji}</span><span class="preset-label">${p.label}</span><span class="preset-ml">${p.ml} ml</span>`;
+      btn.addEventListener('click', () => {
+        addEntry(p.emoji, p.label, p.ml);
+        refreshAll();
+        showToast(`${p.emoji} ${p.ml} ml ajoutés`);
+      });
+      grid.appendChild(btn);
+    });
+    const addBtn = document.createElement('button');
+    addBtn.className = 'preset-btn add';
+    addBtn.innerHTML = `<span class="preset-emoji">➕</span><span class="preset-label">Autre</span>`;
+    addBtn.addEventListener('click', openAddModal);
+    grid.appendChild(addBtn);
   }
 
-  document.getElementById('prev-month').addEventListener('click', () => {
-    calMonth--;
-    if (calMonth < 0) { calMonth = 11; calYear--; }
-    renderCalendar();
-  });
-
-  document.getElementById('next-month').addEventListener('click', () => {
-    calMonth++;
-    if (calMonth > 11) { calMonth = 0; calYear++; }
-    renderCalendar();
-  });
-
-  renderCalendar();
-
-  // === UPCOMING ===
-  function renderUpcoming() {
-    const list = document.getElementById('upcoming-list');
+  // ==================== LOG LIST ====================
+  function renderLog() {
+    const list = document.getElementById('log-list');
+    const entries = getTodayEntries().slice().reverse();
     list.innerHTML = '';
-
-    // Get last 2 past doses + next 4 upcoming
-    const doses = [];
-
-    // Past doses (last 2)
-    let d = new Date(today);
-    d.setDate(d.getDate() - 1);
-    let pastCount = 0;
-    while (pastCount < 2) {
-      if (isDoseDay(d) && d >= stripTime(START_DATE)) {
-        doses.unshift({ date: new Date(d), type: 'done' });
-        pastCount++;
-      }
-      d.setDate(d.getDate() - 1);
-      if (d < stripTime(START_DATE)) break;
+    if (entries.length === 0) {
+      list.innerHTML = `<div class="empty-state">Rien enregistré pour l'instant.<br>Ajoutez votre première boisson 👇</div>`;
+      return;
     }
-
-    // Today if dose
-    if (todayIsDose) doses.push({ date: new Date(today), type: 'today' });
-
-    // Next 5 upcoming
-    let upcoming = new Date(today);
-    upcoming.setDate(upcoming.getDate() + (todayIsDose ? 1 : 0));
-    let count = 0;
-    while (count < 5) {
-      if (!todayIsDose || upcoming > today) {
-        // find next
-      }
-      if (isDoseDay(upcoming) && upcoming > today) {
-        doses.push({ date: new Date(upcoming), type: 'next' });
-        count++;
-      }
-      upcoming.setDate(upcoming.getDate() + 1);
-    }
-
-    doses.forEach((item, i) => {
+    entries.forEach(e => {
       const row = document.createElement('div');
-      row.className = 'dose-row';
-
-      const dot = document.createElement('div');
-      dot.className = 'dose-dot';
-      if (item.type === 'done') dot.classList.add('green');
-      else if (item.type === 'today') dot.classList.add('blue');
-      else dot.classList.add('gray');
-
-      const dateDiv = document.createElement('div');
-      dateDiv.className = 'dose-date';
-
-      const isToday2 = item.date.getTime() === today.getTime();
-      const label = isToday2 ? "Aujourd'hui" : formatDate(item.date);
-      const daysAway = daysUntil(item.date);
-
-      dateDiv.innerHTML = `
-        <div class="dose-date-main">${label}</div>
-        <div class="dose-date-sub">${item.type === 'done' ? 'Prise effectuée' : (isToday2 ? 'À prendre aujourd\'hui' : `Dans ${daysAway} jour${daysAway > 1 ? 's' : ''}`)}</div>
+      row.className = 'log-row';
+      row.innerHTML = `
+        <div class="log-emoji">${e.emoji}</div>
+        <div class="log-mid">
+          <div class="log-label">${e.label || defaultLabelFor(e.emoji)}</div>
+          <div class="log-time">${e.time}</div>
+        </div>
+        <div class="log-amount">${e.ml} ml</div>
+        <button class="log-del" data-id="${e.id}">×</button>
       `;
-
-      const badge = document.createElement('div');
-      badge.className = 'dose-badge';
-      if (item.type === 'done') {
-        badge.classList.add('done');
-        badge.textContent = '✓ Pris';
-      } else if (item.type === 'today') {
-        badge.classList.add('next');
-        badge.textContent = '💊 Aujourd\'hui';
-      } else if (i === doses.findIndex(x => x.type === 'next')) {
-        badge.classList.add('next');
-        badge.textContent = 'Prochain';
-      } else {
-        badge.style.color = 'var(--gray2)';
-        badge.textContent = `J+${daysUntil(item.date)}`;
-      }
-
-      row.appendChild(dot);
-      row.appendChild(dateDiv);
-      row.appendChild(badge);
+      row.querySelector('.log-del').addEventListener('click', () => {
+        deleteEntry(e.id);
+        refreshAll();
+      });
       list.appendChild(row);
     });
   }
 
-  renderUpcoming();
-
-  // === STREAK (how many past doses since start) ===
-  function calcStreak() {
-    let count = 0;
-    let d = new Date(today);
-    while (d >= stripTime(START_DATE)) {
-      if (isDoseDay(d)) count++;
-      d.setDate(d.getDate() - 1);
-    }
-    return count;
+  function defaultLabelFor(emoji) {
+    const found = DEFAULT_PRESETS.find(p => p.emoji === emoji) || presets.find(p => p.emoji === emoji);
+    return found ? found.label : 'Boisson';
   }
-  document.getElementById('streak-num').textContent = calcStreak();
+
+  // ==================== WEEK CHART ====================
+  function renderWeek() {
+    const wrap = document.getElementById('week-bars');
+    wrap.innerHTML = '';
+    const maxVal = Math.max(goal, ...Array.from({length:7}, (_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - (6 - i));
+      return totalFor(dateKey(d));
+    }));
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - (6 - i));
+      const key = dateKey(d);
+      const total = totalFor(key);
+      const isToday = key === todayKey;
+      const heightPct = maxVal > 0 ? Math.max((total / maxVal) * 100, total > 0 ? 6 : 2) : 2;
+
+      const col = document.createElement('div');
+      col.className = 'week-col';
+      col.innerHTML = `
+        <div class="week-bar-track">
+          <div class="week-bar ${total >= goal && total > 0 ? 'hit' : ''} ${isToday ? 'today-bar' : ''}" style="height:${heightPct}%"></div>
+        </div>
+        <div class="week-daylabel">${isToday ? "Auj." : JOURS_COURT[d.getDay()]}</div>
+      `;
+      wrap.appendChild(col);
+    }
+  }
+
+  function refreshAll() {
+    renderRing();
+    renderPresetGrid();
+    renderLog();
+    renderWeek();
+  }
+
+  // ==================== ADD MODAL ====================
+  const addOverlay = document.getElementById('add-overlay');
+  let selectedEmoji = '🥛';
+  let saveAsShortcut = false;
+
+  function renderEmojiRow() {
+    const row = document.getElementById('add-emoji-row');
+    row.innerHTML = '';
+    EMOJI_CHOICES.forEach(em => {
+      const chip = document.createElement('button');
+      chip.className = 'chip' + (em === selectedEmoji ? ' selected' : '');
+      chip.textContent = em;
+      chip.addEventListener('click', () => {
+        selectedEmoji = em;
+        renderEmojiRow();
+      });
+      row.appendChild(chip);
+    });
+  }
+
+  function renderAmountChips() {
+    const row = document.getElementById('add-amount-chips');
+    row.innerHTML = '';
+    AMOUNT_CHOICES.forEach(ml => {
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.textContent = `${ml} ml`;
+      chip.addEventListener('click', () => {
+        document.getElementById('amount-value').value = ml;
+      });
+      row.appendChild(chip);
+    });
+  }
+
+  function openAddModal() {
+    selectedEmoji = '🥛';
+    saveAsShortcut = false;
+    document.getElementById('add-label-input').value = '';
+    document.getElementById('amount-value').value = 250;
+    document.getElementById('save-shortcut-switch').classList.remove('on');
+    renderEmojiRow();
+    renderAmountChips();
+    addOverlay.classList.add('open');
+  }
+  function closeAddModal() {
+    addOverlay.classList.remove('open');
+  }
+
+  document.getElementById('fab-btn').addEventListener('click', openAddModal);
+  document.getElementById('cancel-add-btn').addEventListener('click', closeAddModal);
+  addOverlay.addEventListener('click', (e) => { if (e.target === addOverlay) closeAddModal(); });
+
+  document.getElementById('amount-minus').addEventListener('click', () => {
+    const input = document.getElementById('amount-value');
+    input.value = Math.max(0, parseInt(input.value || '0', 10) - 10);
+  });
+  document.getElementById('amount-plus').addEventListener('click', () => {
+    const input = document.getElementById('amount-value');
+    input.value = parseInt(input.value || '0', 10) + 10;
+  });
+
+  document.getElementById('save-shortcut-switch').addEventListener('click', function () {
+    saveAsShortcut = !saveAsShortcut;
+    this.classList.toggle('on', saveAsShortcut);
+  });
+
+  document.getElementById('confirm-add-btn').addEventListener('click', () => {
+    const ml = parseInt(document.getElementById('amount-value').value || '0', 10);
+    if (!ml || ml <= 0) { showToast('Entrez une quantité valide'); return; }
+    const label = document.getElementById('add-label-input').value.trim();
+
+    addEntry(selectedEmoji, label, ml);
+
+    if (saveAsShortcut) {
+      presets.push({ emoji: selectedEmoji, label: label || defaultLabelFor(selectedEmoji), ml });
+      saveJSON('hydra_presets', presets);
+    }
+
+    closeAddModal();
+    refreshAll();
+    showToast(`${selectedEmoji} ${ml} ml ajoutés`);
+  });
+
+  // ==================== SETTINGS MODAL ====================
+  const settingsOverlay = document.getElementById('settings-overlay');
+
+  function renderPresetManageList() {
+    const list = document.getElementById('preset-manage-list');
+    list.innerHTML = '';
+    if (presets.length === 0) {
+      list.innerHTML = `<div class="empty-state">Aucun raccourci</div>`;
+      return;
+    }
+    presets.forEach((p, idx) => {
+      const row = document.createElement('div');
+      row.className = 'preset-manage-row';
+      row.innerHTML = `
+        <span class="pe">${p.emoji}</span>
+        <span class="pl">${p.label}</span>
+        <span class="pm">${p.ml} ml</span>
+        <button class="px" data-idx="${idx}">×</button>
+      `;
+      row.querySelector('.px').addEventListener('click', () => {
+        presets.splice(idx, 1);
+        saveJSON('hydra_presets', presets);
+        renderPresetManageList();
+        renderPresetGrid();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function buildQuickLink(p) {
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.searchParams.set('emoji', p.emoji);
+    if (p.label) url.searchParams.set('label', p.label);
+    url.searchParams.set('ml', p.ml);
+    return url.toString();
+  }
+
+  function renderQuickLinksList() {
+    const list = document.getElementById('quicklink-list');
+    list.innerHTML = '';
+    if (presets.length === 0) {
+      list.innerHTML = `<div class="empty-state">Aucun raccourci</div>`;
+      return;
+    }
+    presets.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'preset-manage-row';
+      row.innerHTML = `
+        <span class="pe">${p.emoji}</span>
+        <span class="pl">${p.label}</span>
+        <span class="pm">${p.ml} ml</span>
+        <button class="px link-btn" data-url="${buildQuickLink(p)}">🔗</button>
+      `;
+      row.querySelector('.link-btn').addEventListener('click', async (e) => {
+        const url = e.currentTarget.getAttribute('data-url');
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast('Lien copié ✔️');
+        } catch (err) {
+          showToast('Copie impossible sur ce navigateur');
+        }
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function openSettingsModal() {
+    document.getElementById('goal-value').value = goal;
+    renderPresetManageList();
+    renderQuickLinksList();
+    settingsOverlay.classList.add('open');
+  }
+  function closeSettingsModal() {
+    settingsOverlay.classList.remove('open');
+  }
+
+  document.getElementById('settings-btn').addEventListener('click', openSettingsModal);
+  document.getElementById('close-settings-btn').addEventListener('click', closeSettingsModal);
+  document.getElementById('goal-edit-btn').addEventListener('click', openSettingsModal);
+  settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) closeSettingsModal(); });
+
+  document.getElementById('goal-minus').addEventListener('click', () => {
+    const input = document.getElementById('goal-value');
+    input.value = Math.max(250, parseInt(input.value || '0', 10) - 100);
+  });
+  document.getElementById('goal-plus').addEventListener('click', () => {
+    const input = document.getElementById('goal-value');
+    input.value = parseInt(input.value || '0', 10) + 100;
+  });
+
+  document.getElementById('save-settings-btn').addEventListener('click', () => {
+    const val = parseInt(document.getElementById('goal-value').value || '0', 10);
+    if (val && val > 0) {
+      goal = val;
+      saveJSON('hydra_goal', goal);
+    }
+    closeSettingsModal();
+    refreshAll();
+    showToast('Objectif mis à jour');
+  });
+
+  // ==================== QUICK ADD VIA URL (Shortcuts) ====================
+  // Opening the app with ?emoji=..&label=..&ml=250 logs that drink immediately,
+  // so a Siri Shortcut ("Ouvrir les URL") pinned to the Shortcuts home-screen
+  // widget can add a drink in one tap.
+  let pendingQuickAdd = null;
+
+  function checkQuickAddFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('ml')) return;
+    const ml = parseInt(params.get('ml'), 10);
+    if (!ml || ml <= 0) return;
+    const emoji = params.get('emoji') || '💧';
+    const label = (params.get('label') || '').trim();
+
+    addEntry(emoji, label, ml);
+    history.replaceState({}, document.title, window.location.pathname);
+    pendingQuickAdd = { emoji, label: label || defaultLabelFor(emoji), ml };
+  }
+
+  function showQuickAddOverlay() {
+    if (!pendingQuickAdd) return;
+    const { emoji, label, ml } = pendingQuickAdd;
+    document.getElementById('qa-emoji').textContent = emoji;
+    document.getElementById('qa-title').textContent = `${label} ajouté`;
+    document.getElementById('qa-sub').textContent =
+      `+${ml} ml · Total du jour : ${totalFor(todayKey)} / ${goal} ml`;
+    document.getElementById('quickadd-overlay').classList.add('show');
+  }
+
+  document.getElementById('qa-close-btn').addEventListener('click', () => {
+    document.getElementById('quickadd-overlay').classList.remove('show');
+  });
+
+  // ==================== INIT ====================
+  checkQuickAddFromURL();
+  refreshAll();
+  showQuickAddOverlay();
 </script>
 </body>
 </html>
