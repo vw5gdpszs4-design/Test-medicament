@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Scan & Rédige">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#f5f5f7">
+  <title>Scan & Rédige</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --card2: #f2f2f7;
+      --blue: #007AFF;
+      --green: #34C759;
+      --red: #FF3B30;
+      --orange: #FF9500;
+      --purple: #5856D6;
+      --gray: #8e8e93;
+      --gray2: #c7c7cc;
+      --text: #1d1d1f;
+      --text2: #6e6e73;
+      --radius: 18px;
+      --shadow: 0 2px 20px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 40px;
+    }
+
+    .status-bar { height: env(safe-area-inset-top, 44px); background: var(--bg); }
+
+    .header {
+      padding: 12px 20px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
+    .header-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+    .icon-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--card);
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: var(--shadow);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:active { background: var(--card2); }
+
+    .section { margin: 0 16px 20px; }
+
+    .section-label {
+      font-size: 13px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text2);
+      margin-bottom: 8px; padding-left: 4px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* Empty state hero */
+    .hero {
+      margin: 0 16px 20px;
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #5856D6 0%, #007AFF 100%);
+      box-shadow: var(--shadow);
+    }
+    .hero-emoji { font-size: 48px; display: block; margin-bottom: 10px; }
+    .hero-title { font-size: 22px; font-weight: 700; color: #fff; }
+    .hero-sub { font-size: 14px; color: rgba(255,255,255,0.85); margin-top: 6px; line-height: 1.4; }
+
+    .big-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+    .big-btn:active { transform: scale(0.97); }
+    .big-btn.primary { background: #fff; color: var(--blue); }
+    .big-btn.solid { background: var(--blue); color: #fff; }
+    .big-btn.solid:disabled { background: var(--gray2); color: var(--gray); cursor: not-allowed; }
+    .big-btn.ghost { background: var(--card2); color: var(--text); }
+    .big-btn.danger-ghost { background: var(--card2); color: var(--red); }
+
+    /* Photo thumbnails */
+    .thumb-row {
+      display: flex; gap: 10px; padding: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .thumb {
+      position: relative;
+      flex: 0 0 auto;
+      width: 76px; height: 96px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--card2);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+    }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumb .rm {
+      position: absolute; top: 3px; right: 3px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      color: #fff; border: none;
+      font-size: 12px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .thumb-add {
+      flex: 0 0 auto;
+      width: 76px; height: 96px;
+      border-radius: 10px;
+      border: 1.5px dashed var(--gray2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: var(--gray);
+      background: var(--card2);
+    }
+
+    .action-stack { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* Result */
+    .result-text {
+      width: 100%;
+      min-height: 220px;
+      border: none;
+      resize: vertical;
+      padding: 16px;
+      font-size: 15.5px;
+      line-height: 1.55;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      color: var(--text);
+      background: transparent;
+    }
+    .result-text:focus { outline: none; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(29,29,31,0.92);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 50;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Loading overlay */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(245,245,247,0.92);
+      display: none;
+      align-items: center; justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 100;
+      text-align: center;
+      padding: 20px;
+    }
+    .overlay.show { display: flex; }
+    .spinner {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 3px solid var(--card2);
+      border-top-color: var(--blue);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .overlay-text { font-size: 15px; color: var(--text2); font-weight: 500; }
+
+    /* Settings modal */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: none;
+      align-items: flex-end;
+      z-index: 200;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      background: var(--bg);
+      width: 100%;
+      border-radius: 20px 20px 0 0;
+      padding: 20px 20px calc(env(safe-area-inset-bottom,0px) + 24px);
+      max-height: 85dvh;
+      overflow-y: auto;
+    }
+    .modal-handle {
+      width: 36px; height: 5px; border-radius: 3px;
+      background: var(--gray2);
+      margin: 0 auto 16px;
+    }
+    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.5; }
+    .field-label { font-size: 13px; font-weight: 600; color: var(--text2); margin: 14px 0 6px; }
+    .field-input {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 12px;
+      border: none;
+      background: var(--card);
+      font-size: 15px;
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+    .field-input:focus { outline: 2px solid var(--blue); }
+    select.field-input { -webkit-appearance: none; appearance: none; }
+    .modal-link { font-size: 13px; color: var(--blue); margin-top: 6px; display: inline-block; }
+    .modal-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+
+    .privacy-note {
+      display: flex; gap: 10px;
+      background: var(--card);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      margin-top: 4px;
+      font-size: 12.5px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .error-banner {
+      margin: 0 16px 16px;
+      background: rgba(255,59,48,0.1);
+      color: var(--red);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.4;
+      display: none;
+    }
+    .error-banner.show { display: block; }
+
+    input[type="file"] { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="status-bar"></div>
+
+<div class="header">
+  <div>
+    <div class="header-title">Scan & Rédige</div>
+    <div class="header-sub">Photographiez, on remet au propre</div>
+  </div>
+  <button class="icon-btn" id="settings-btn">⚙️</button>
+</div>
+
+<div class="error-banner" id="error-banner"></div>
+
+<!-- Empty state -->
+<div id="empty-state">
+  <div class="hero">
+    <span class="hero-emoji">📝</span>
+    <div class="hero-title">Vos brouillons, bien rédigés</div>
+    <div class="hero-sub">Prenez en photo un brouillon, un dessin ou un croquis annoté : l'IA le retranscrit et le reformule proprement.</div>
+  </div>
+  <div class="section">
+    <button class="big-btn solid" id="take-photo-btn">📷 Prendre une photo</button>
+  </div>
+</div>
+
+<!-- Photos state -->
+<div id="photos-state" style="display:none;">
+  <div class="section">
+    <div class="section-label">Photos (<span id="photo-count">0</span>)</div>
+    <div class="card">
+      <div class="thumb-row" id="thumb-row"></div>
+    </div>
+  </div>
+  <div class="section action-stack" style="padding:0;">
+    <button class="big-btn solid" id="clean-btn">✨ Nettoyer & rédiger</button>
+    <button class="big-btn danger-ghost" id="reset-btn">Recommencer</button>
+  </div>
+</div>
+
+<!-- Result state -->
+<div id="result-state" style="display:none;">
+  <div class="section">
+    <div class="section-label">Texte rédigé</div>
+    <div class="card">
+      <textarea class="result-text" id="result-text"></textarea>
+    </div>
+  </div>
+  <div class="section action-stack" style="padding:0;">
+    <button class="big-btn solid" id="copy-btn">📋 Copier le texte</button>
+    <button class="big-btn ghost" id="share-btn">📤 Partager</button>
+    <button class="big-btn ghost" id="download-btn">⬇️ Télécharger (.txt)</button>
+    <button class="big-btn danger-ghost" id="new-scan-btn">Nouveau scan</button>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept="image/*" capture="environment">
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <div class="overlay-text">Analyse en cours… l'IA lit et reformule votre texte</div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-backdrop" id="settings-backdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Réglages</div>
+    <div class="modal-sub">Cette appli fonctionne sans serveur : elle appelle directement l'API Claude depuis votre téléphone avec votre propre clé.</div>
+
+    <div class="field-label">Clé API Anthropic</div>
+    <input class="field-input" id="api-key-input" type="password" placeholder="sk-ant-...">
+    <a class="modal-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Obtenir une clé sur console.anthropic.com →</a>
+
+    <div class="field-label">Modèle</div>
+    <select class="field-input" id="model-select">
+      <option value="claude-sonnet-5">Sonnet 5 — recommandé, rapide et précis</option>
+      <option value="claude-opus-5">Opus 5 — qualité maximale, plus lent</option>
+      <option value="claude-haiku-4-5-20251001">Haiku 4.5 — le plus rapide</option>
+    </select>
+
+    <div class="privacy-note">
+      🔒 Votre clé API est stockée uniquement sur cet appareil (localStorage), jamais envoyée ailleurs qu'à l'API Anthropic. Vos photos sont envoyées à Anthropic pour l'analyse et ne sont pas conservées par cette appli.
+    </div>
+
+    <div class="modal-actions">
+      <button class="big-btn solid" id="save-settings-btn">Enregistrer</button>
+      <button class="big-btn ghost" id="close-settings-btn">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const LS_KEY = 'scan_redige_api_key';
+  const LS_MODEL = 'scan_redige_model';
+  const MAX_DIM = 1600;
+  const JPEG_QUALITY = 0.85;
+
+  let photos = []; // { dataUrl, mediaType }
+
+  const $ = (id) => document.getElementById(id);
+
+  const emptyState = $('empty-state');
+  const photosState = $('photos-state');
+  const resultState = $('result-state');
+  const overlay = $('overlay');
+  const toastEl = $('toast');
+  const errorBanner = $('error-banner');
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  function showError(msg) {
+    errorBanner.textContent = msg;
+    errorBanner.classList.add('show');
+  }
+  function clearError() {
+    errorBanner.classList.remove('show');
+    errorBanner.textContent = '';
+  }
+
+  function refreshView() {
+    if (resultState.dataset.active === '1') return;
+    if (photos.length === 0) {
+      emptyState.style.display = '';
+      photosState.style.display = 'none';
+    } else {
+      emptyState.style.display = 'none';
+      photosState.style.display = '';
+      $('photo-count').textContent = photos.length;
+      renderThumbs();
+    }
+  }
+
+  function renderThumbs() {
+    const row = $('thumb-row');
+    row.innerHTML = '';
+    photos.forEach((p, i) => {
+      const t = document.createElement('div');
+      t.className = 'thumb';
+      t.innerHTML = `<img src="${p.dataUrl}"><button class="rm" data-i="${i}">✕</button>`;
+      row.appendChild(t);
+    });
+    const add = document.createElement('div');
+    add.className = 'thumb-add';
+    add.textContent = '+';
+    add.addEventListener('click', () => $('file-input').click());
+    row.appendChild(add);
+
+    row.querySelectorAll('.rm').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const i = parseInt(e.currentTarget.dataset.i, 10);
+        photos.splice(i, 1);
+        refreshView();
+      });
+    });
+  }
+
+  // --- Photo capture & resize ---
+  function fileToResizedDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = (e) => { img.src = e.target.result; };
+      reader.onerror = reject;
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > MAX_DIM) {
+          height = Math.round(height * (MAX_DIM / width));
+          width = MAX_DIM;
+        } else if (height >= width && height > MAX_DIM) {
+          width = Math.round(width * (MAX_DIM / height));
+          height = MAX_DIM;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
+      };
+      img.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  $('take-photo-btn').addEventListener('click', () => $('file-input').click());
+
+  $('file-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    clearError();
+    try {
+      const dataUrl = await fileToResizedDataUrl(file);
+      photos.push({ dataUrl, mediaType: 'image/jpeg' });
+      refreshView();
+    } catch (err) {
+      showError("Impossible de charger cette photo. Réessayez.");
+    }
+  });
+
+  $('reset-btn').addEventListener('click', () => {
+    photos = [];
+    refreshView();
+  });
+
+  // --- Settings ---
+  const settingsBackdrop = $('settings-backdrop');
+  function openSettings() {
+    $('api-key-input').value = localStorage.getItem(LS_KEY) || '';
+    $('model-select').value = localStorage.getItem(LS_MODEL) || 'claude-sonnet-5';
+    settingsBackdrop.classList.add('show');
+  }
+  function closeSettings() { settingsBackdrop.classList.remove('show'); }
+
+  $('settings-btn').addEventListener('click', openSettings);
+  $('close-settings-btn').addEventListener('click', closeSettings);
+  settingsBackdrop.addEventListener('click', (e) => { if (e.target === settingsBackdrop) closeSettings(); });
+
+  $('save-settings-btn').addEventListener('click', () => {
+    const key = $('api-key-input').value.trim();
+    localStorage.setItem(LS_KEY, key);
+    localStorage.setItem(LS_MODEL, $('model-select').value);
+    closeSettings();
+    showToast('Réglages enregistrés');
+  });
+
+  // --- Clean & rewrite via Claude API ---
+  const PROMPT = `Voici une ou plusieurs photos de mes écrits manuscrits (brouillon, notes, dessin annoté, croquis, etc.).
+
+Fais ceci :
+1. Transcris fidèlement tout le texte visible, dans l'ordre logique (si plusieurs photos, traite-les comme les pages successives d'un même document).
+2. Corrige l'orthographe, la grammaire et la ponctuation.
+3. Reformule si besoin pour que ce soit clair et bien rédigé, sans changer le sens ni inventer d'informations.
+4. Structure proprement le résultat (titres, paragraphes, listes à puces) si le contenu s'y prête.
+5. Si un dessin, schéma ou croquis ne comporte pas de texte exploitable, décris-le brièvement entre crochets, ex: [Schéma : flèche reliant "A" à "B"].
+
+Réponds uniquement avec le texte final, nettoyé et bien rédigé, en français, sans commentaire ni introduction de ta part.`;
+
+  $('clean-btn').addEventListener('click', async () => {
+    clearError();
+    const apiKey = localStorage.getItem(LS_KEY);
+    if (!apiKey) {
+      showError("Ajoutez d'abord votre clé API Anthropic dans les réglages (⚙️).");
+      openSettings();
+      return;
+    }
+    const model = localStorage.getItem(LS_MODEL) || 'claude-sonnet-5';
+
+    overlay.classList.add('show');
+    try {
+      const content = photos.map(p => ({
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: p.mediaType,
+          data: p.dataUrl.split(',')[1]
+        }
+      }));
+      content.push({ type: 'text', text: PROMPT });
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 4096,
+          messages: [{ role: 'user', content }]
+        })
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        const msg = errBody?.error?.message || `Erreur ${res.status}`;
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      const text = (data.content || []).map(b => b.text || '').join('\n').trim();
+      showResult(text || "(Aucun texte détecté sur la photo.)");
+    } catch (err) {
+      showError("Échec de l'analyse : " + err.message);
+    } finally {
+      overlay.classList.remove('show');
+    }
+  });
+
+  function showResult(text) {
+    emptyState.style.display = 'none';
+    photosState.style.display = 'none';
+    resultState.style.display = '';
+    resultState.dataset.active = '1';
+    $('result-text').value = text;
+  }
+
+  $('new-scan-btn').addEventListener('click', () => {
+    photos = [];
+    resultState.dataset.active = '0';
+    resultState.style.display = 'none';
+    refreshView();
+  });
+
+  $('copy-btn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText($('result-text').value);
+      showToast('Texte copié ✓');
+    } catch {
+      $('result-text').select();
+      document.execCommand('copy');
+      showToast('Texte copié ✓');
+    }
+  });
+
+  $('share-btn').addEventListener('click', async () => {
+    const text = $('result-text').value;
+    if (navigator.share) {
+      try { await navigator.share({ text }); } catch {}
+    } else {
+      showToast("Le partage n'est pas disponible sur ce navigateur");
+    }
+  });
+
+  $('download-btn').addEventListener('click', () => {
+    const text = $('result-text').value;
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `texte-${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  refreshView();
+</script>
+</body>
+</html>
