@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Un p'tit café avec Jordan — Vidéos, avis &amp; boutique</title>
+<meta name="description" content="Retrouvez les dernières vidéos de cartomagie et mentalisme de Jordan, ses comptes rendus de produits, ses articles, et la boutique.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
+<style>
+
+  /* ============================================================
+     CONFIG RAPIDE — pas besoin de toucher au CSS/JS pour éditer :
+     tout le contenu (vidéos, avis, articles, boutique) se modifie
+     dans le bloc CONFIG au début du <script>, tout en bas du fichier.
+     ============================================================ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  :root {
+    /* --- thème sombre (par défaut) : table de jeu, cuir, laiton --- */
+    --bg: #14100d;
+    --surface: #1e1811;
+    --surface-2: #271f15;
+    --text: #f1e9da;
+    --text-dim: #b9ac94;
+    --gold: #d4af37;
+    --gold-strong: #f0cf66;
+    --red: #b23a43;
+    --red-strong: #d1555e;
+    --border: rgba(212,175,55,0.22);
+    --shadow: 0 18px 40px -18px rgba(0,0,0,0.6);
+    --radius: 16px;
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', ui-sans-serif, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f3ebdc;
+      --surface: #fffcf5;
+      --surface-2: #ede2cc;
+      --text: #211a10;
+      --text-dim: #6b5d45;
+      --gold: #8a6a17;
+      --gold-strong: #6e5310;
+      --red: #8e2e36;
+      --red-strong: #732128;
+      --border: rgba(138,106,23,0.28);
+      --shadow: 0 18px 40px -18px rgba(60,45,20,0.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14100d; --surface: #1e1811; --surface-2: #271f15;
+    --text: #f1e9da; --text-dim: #b9ac94;
+    --gold: #d4af37; --gold-strong: #f0cf66;
+    --red: #b23a43; --red-strong: #d1555e;
+    --border: rgba(212,175,55,0.22);
+    --shadow: 0 18px 40px -18px rgba(0,0,0,0.6);
+  }
+  :root[data-theme="light"] {
+    --bg: #f3ebdc; --surface: #fffcf5; --surface-2: #ede2cc;
+    --text: #211a10; --text-dim: #6b5d45;
+    --gold: #8a6a17; --gold-strong: #6e5310;
+    --red: #8e2e36; --red-strong: #732128;
+    --border: rgba(138,106,23,0.28);
+    --shadow: 0 18px 40px -18px rgba(60,45,20,0.25);
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; text-wrap: balance; margin: 0; }
+
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+
+  button { font-family: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+  /* ---------- Topbar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 40;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar .wrap {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding-top: 14px; padding-bottom: 14px;
+  }
+  .brand {
+    display: flex; align-items: baseline; gap: 8px;
+    font-family: var(--serif); font-size: 1.15rem; font-weight: 700;
+    text-decoration: none; color: var(--text);
+  }
+  .brand .mark { color: var(--gold); font-size: 1.1em; }
+  .topnav { display: flex; align-items: center; gap: 28px; }
+  .topnav a {
+    font-size: 0.92rem; text-decoration: none; color: var(--text-dim);
+    transition: color 0.15s;
+  }
+  .topnav a:hover { color: var(--text); }
+  .btn-shop-mini {
+    border: 1px solid var(--gold); color: var(--gold);
+    background: transparent; border-radius: 999px;
+    padding: 8px 18px; font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-shop-mini:hover { background: var(--gold); color: var(--surface); }
+
+  @media (max-width: 720px) {
+    .topnav a.nav-link { display: none; }
+  }
+  @media (max-width: 480px) {
+    .brand { font-size: 0.98rem; gap: 6px; }
+    .btn-shop-mini { padding: 7px 14px; font-size: 0.8rem; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 72px 0 56px; overflow: hidden; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; }
+  @media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; } .hero { padding: 48px 0 40px; } }
+
+  .hero h1 {
+    font-size: clamp(2.3rem, 4.4vw + 1rem, 3.6rem);
+    line-height: 1.05;
+    margin: 14px 0 18px;
+    letter-spacing: -0.01em;
+  }
+  .hero h1 em { color: var(--gold); font-style: italic; }
+  .hero p.lede { color: var(--text-dim); font-size: 1.08rem; max-width: 46ch; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 24px; border-radius: 999px; font-size: 0.95rem; font-weight: 700;
+    text-decoration: none; border: 1px solid transparent; transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--gold); color: var(--surface); }
+  .btn-primary:hover { background: var(--gold-strong); box-shadow: var(--shadow); }
+  .btn-outline { border-color: var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* card-fan hero art */
+  .fan { position: relative; height: 300px; margin: 0 auto; width: 100%; max-width: 340px; }
+  .fan .card {
+    position: absolute; left: 50%; bottom: 6px; width: 150px; height: 210px;
+    margin-left: -75px; border-radius: 12px;
+    background: linear-gradient(160deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transform-origin: 50% 100%;
+    display: flex; align-items: flex-start; justify-content: space-between; padding: 14px;
+    font-family: var(--serif); color: var(--gold);
+    transition: transform 0.6s cubic-bezier(.2,.8,.2,1);
+  }
+  .fan .card span { font-size: 1.3rem; }
+  .fan .card.c1 { transform: rotate(-22deg) translateX(-56px); }
+  .fan .card.c2 { transform: rotate(-11deg) translateX(-28px); z-index: 1; }
+  .fan .card.c3 { transform: rotate(0deg); z-index: 2; }
+  .fan .card.c4 { transform: rotate(11deg) translateX(28px); z-index: 1; }
+  .fan .card.c5 { transform: rotate(22deg) translateX(56px); color: var(--red); }
+  .fan .card.c3 { color: var(--text); }
+  .fan .card.c3::after { content: '☕'; position: absolute; bottom: 14px; right: 14px; font-size: 1.6rem; }
+  @media (prefers-reduced-motion: no-preference) {
+    .fan .card { animation: fan-in 0.9s cubic-bezier(.2,.8,.2,1) both; }
+    .fan .card.c1 { animation-delay: 0.02s; }
+    .fan .card.c2 { animation-delay: 0.08s; }
+    .fan .card.c3 { animation-delay: 0.14s; }
+    .fan .card.c4 { animation-delay: 0.08s; }
+    .fan .card.c5 { animation-delay: 0.02s; }
+  }
+  @keyframes fan-in {
+    from { transform: rotate(0deg) translateX(0) translateY(40px); opacity: 0; }
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 56px 0; }
+  .section-head {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+    margin-bottom: 28px; flex-wrap: wrap;
+  }
+  .section-head h2 { font-size: 1.7rem; margin-top: 8px; }
+  .section-head .sub { color: var(--text-dim); font-size: 0.95rem; max-width: 50ch; margin-top: 6px; }
+
+  /* ---------- Videos ---------- */
+  .video-frame {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px; box-shadow: var(--shadow);
+  }
+  .video-frame .ratio {
+    position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden;
+    background: var(--surface-2);
+  }
+  .video-frame .ratio iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  .video-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; height: 100%; padding: 32px; text-align: center; color: var(--text-dim);
+  }
+  .video-empty .glyph { font-size: 2rem; color: var(--gold); }
+  .video-empty code {
+    background: var(--surface); border: 1px solid var(--border); padding: 2px 8px; border-radius: 6px;
+    font-size: 0.85em;
+  }
+
+  .subscribe-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .subscribe-row p { color: var(--text-dim); font-size: 0.92rem; margin: 0; }
+
+  .pinned-videos {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; margin-top: 24px;
+  }
+  .vcard {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    text-align: left; padding: 0; box-shadow: var(--shadow); transition: transform 0.2s;
+  }
+  .vcard:hover { transform: translateY(-4px); }
+  .vcard .thumb { position: relative; aspect-ratio: 16/9; background: var(--surface-2); }
+  .vcard .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .vcard .thumb .play {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(20,16,13,0.25); color: #fff; font-size: 1.8rem;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .vcard:hover .thumb .play { opacity: 1; }
+  .vcard .body { padding: 14px 16px 16px; }
+  .vcard .body h3 { font-size: 1rem; font-family: var(--sans); font-weight: 700; }
+
+  /* ---------- Filter tabs ---------- */
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab {
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    border-radius: 999px; padding: 9px 18px; font-size: 0.88rem; font-weight: 600;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--surface); }
+
+  /* ---------- Content grid (avis + articles) ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; margin-top: 26px; }
+
+  .card-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px; box-shadow: var(--shadow); text-decoration: none; color: var(--text);
+    display: flex; flex-direction: column; gap: 10px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .card-item:hover { transform: translateY(-4px); border-color: var(--gold); }
+  .card-item .suit { font-size: 1.3rem; }
+  .card-item .suit.review { color: var(--red); }
+  .card-item .suit.article { color: var(--gold); }
+  .card-item h3 { font-family: var(--sans); font-size: 1.05rem; font-weight: 700; }
+  .card-item p { color: var(--text-dim); font-size: 0.92rem; margin: 0; flex: 1; }
+  .card-item .meta {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    font-size: 0.78rem; color: var(--text-dim); margin-top: 4px;
+  }
+  .card-item .read { color: var(--gold); font-weight: 700; }
+  .tpl-badge {
+    align-self: flex-start; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--red); border: 1px solid var(--red); border-radius: 6px;
+    padding: 2px 7px;
+  }
+
+  /* ---------- Shop banner ---------- */
+  .shop-banner {
+    background: linear-gradient(150deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 44px; text-align: center; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .shop-banner h2 { font-size: 1.9rem; max-width: 20ch; }
+  .shop-banner p { color: var(--text-dim); max-width: 48ch; }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--border); padding: 32px 0; }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  footer .socials { display: flex; gap: 18px; }
+  footer a.social { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; }
+  footer a.social:hover { color: var(--gold); }
+  footer .fine { color: var(--text-dim); font-size: 0.8rem; }
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(10,8,6,0.78); display: none;
+    align-items: center; justify-content: center; z-index: 100; padding: 24px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    width: 100%; max-width: 860px; background: var(--surface); border-radius: 14px;
+    border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow);
+  }
+  .modal .ratio { position: relative; width: 100%; aspect-ratio: 16/9; }
+  .modal .ratio iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .modal-close {
+    display: block; margin-left: auto; background: transparent; border: none; color: var(--text-dim);
+    padding: 10px 14px; font-size: 1rem;
+  }
+  .modal-close:hover { color: var(--gold); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="mark">♠</span> Un p'tit café <span class="mark">☕</span> avec Jordan</a>
+    <nav class="topnav">
+      <a class="nav-link" href="#videos">Vidéos</a>
+      <a class="nav-link" href="#hub">Avis &amp; articles</a>
+      <a class="nav-link" href="#boutique">Boutique</a>
+      <a class="btn-shop-mini" id="subscribe-link" href="#" target="_blank" rel="noopener">S'abonner</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">Cartomagie · Mentalisme · Close-up</span>
+        <h1>Le café coule,<br><em>les cartes parlent.</em></h1>
+        <p class="lede">Chaque semaine, Jordan partage ses dernières vidéos, ses avis sincères sur le matériel de magie, et quelques réflexions sur le métier — le tout autour d'un café.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#videos">▶ Voir les dernières vidéos</a>
+          <a class="btn btn-outline" id="shop-link-hero" href="#" >🃏 La boutique</a>
+        </div>
+      </div>
+      <div class="fan" aria-hidden="true">
+        <div class="card c1"><span>♣</span></div>
+        <div class="card c2"><span>♦</span></div>
+        <div class="card c3"><span>A</span></div>
+        <div class="card c4"><span>♠</span></div>
+        <div class="card c5"><span>♥</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="videos">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">♣ Chaîne YouTube</span>
+          <h2>Dernières vidéos</h2>
+          <p class="sub">Le lecteur ci-dessous affiche automatiquement les nouvelles vidéos publiées sur la chaîne — rien à mettre à jour.</p>
+        </div>
+      </div>
+
+      <div class="video-frame">
+        <div class="ratio" id="playlist-slot">
+          <!-- rempli par le script si CONFIG.videos.playlistId est renseigné -->
+        </div>
+      </div>
+
+      <div class="subscribe-row">
+        <p>De nouvelles vidéos chaque semaine — ne les manquez pas.</p>
+        <a class="btn btn-outline" id="subscribe-link-2" href="#" target="_blank" rel="noopener">☕ S'abonner sur YouTube</a>
+      </div>
+
+      <div class="pinned-videos" id="pinned-videos"></div>
+    </div>
+  </section>
+
+  <section id="hub">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">♦ Avis &amp; ♥ articles</span>
+          <h2>Comptes rendus &amp; articles</h2>
+          <p class="sub">Les avis produits et les articles de Jordan, classés du plus récent au plus ancien.</p>
+        </div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Filtrer le contenu">
+          <button class="tab" data-filter="all" aria-pressed="true">Tout</button>
+          <button class="tab" data-filter="review" aria-pressed="false">Avis produits</button>
+          <button class="tab" data-filter="article" aria-pressed="false">Articles</button>
+        </div>
+      </div>
+
+      <div class="grid" id="hub-grid"></div>
+    </div>
+  </section>
+
+  <section id="boutique">
+    <div class="wrap">
+      <div class="shop-banner">
+        <span class="eyebrow">🃏 La boutique</span>
+        <h2>Le matériel que Jordan utilise et recommande</h2>
+        <p>Jeux, gimmicks et accessoires testés en close-up, disponibles directement en boutique.</p>
+        <a class="btn btn-primary" id="shop-link-banner" href="#">Découvrir la boutique →</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fine">© <span id="year"></span> Jordan Victoria — Un p'tit café avec Jordan</div>
+    <div class="socials">
+      <a class="social" id="social-youtube" href="#" target="_blank" rel="noopener">YouTube</a>
+      <a class="social" id="social-shop" href="#">Boutique</a>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <button class="modal-close" id="modal-close" aria-label="Fermer la vidéo">✕ Fermer</button>
+    <div class="ratio" id="modal-ratio"></div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   CONFIG — c'est ici que Jordan édite tout, sans toucher au reste.
+   ================================================================ */
+const CONFIG = {
+
+  channel: {
+    // Le lien public de la chaîne (déjà rempli avec @JordanVictoria-31)
+    url: "https://www.youtube.com/@JordanVictoria-31",
+  },
+
+  videos: {
+    // Pour un flux "dernières vidéos" 100% automatique, collez ici
+    // l'ID de la playlist "uploads" de la chaîne (commence par UU).
+    // Comment le trouver : ouvrez youtube.com/@JordanVictoria-31/videos,
+    // affichez le code source de la page (Ctrl+U), cherchez "channelId"
+    // -> vous obtenez un ID qui commence par UC... -> remplacez juste
+    // les 2 premières lettres UC par UU. Exemple : UCabcdef -> UUabcdef.
+    playlistId: "",
+
+    // Vidéos "épinglées" (optionnel) : mettez en avant des vidéos précises
+    // avec vos propres titres. Laissez le tableau vide si inutile.
+    // "id" = l'identifiant dans l'URL youtube.com/watch?v=CET_ID
+    pinned: [
+      // { id: "dQw4w9WgXcQ", title: "Titre de la vidéo à mettre en avant" },
+    ],
+  },
+
+  shop: {
+    // ⚠️ À remplacer par l'URL réelle de la boutique
+    url: "https://www.jordanvictoria.fr/boutique",
+  },
+
+  // Chaque entrée : { type: "review" | "article", title, excerpt, date, link, template }
+  // "template: true" affiche un badge "MODÈLE" — mettez-le à false (ou
+  // supprimez la ligne) une fois le contenu remplacé par le vrai.
+  content: [
+    {
+      type: "review",
+      title: "Exemple — titre de votre compte rendu produit",
+      excerpt: "Remplacez ce texte par un extrait de 2-3 phrases de votre avis sur le produit testé.",
+      date: "Juillet 2026",
+      link: "#",
+      template: true,
+    },
+    {
+      type: "article",
+      title: "Exemple — titre de votre article",
+      excerpt: "Remplacez ce texte par un extrait de votre article.",
+      date: "Juillet 2026",
+      link: "#",
+      template: true,
+    },
+  ],
+};
+
+/* ================================================================
+   Rendu — pas besoin de modifier ce qui suit.
+   ================================================================ */
+(function () {
+  const subscribeUrl = CONFIG.channel.url + "?sub_confirmation=1";
+  document.getElementById("subscribe-link").href = subscribeUrl;
+  document.getElementById("subscribe-link-2").href = subscribeUrl;
+  document.getElementById("social-youtube").href = CONFIG.channel.url;
+  document.getElementById("shop-link-hero").href = CONFIG.shop.url;
+  document.getElementById("shop-link-banner").href = CONFIG.shop.url;
+  document.getElementById("social-shop").href = CONFIG.shop.url;
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // --- Playlist auto (lazy: ne charge l'iframe qu'à l'approche du viewport) ---
+  const slot = document.getElementById("playlist-slot");
+  function renderPlaylist() {
+    if (CONFIG.videos.playlistId) {
+      const iframe = document.createElement("iframe");
+      iframe.src = "https://www.youtube.com/embed/videoseries?list=" + CONFIG.videos.playlistId;
+      iframe.title = "Dernières vidéos de la chaîne";
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
+      slot.appendChild(iframe);
+    } else {
+      slot.innerHTML =
+        '<div class="video-empty">' +
+        '<div class="glyph">♣</div>' +
+        '<div>Ajoutez votre ID de playlist dans <code>CONFIG.videos.playlistId</code> pour afficher vos vidéos ici automatiquement.</div>' +
+        '<a class="btn btn-outline" href="' + CONFIG.channel.url + '" target="_blank" rel="noopener" style="margin-top:6px">Voir la chaîne en attendant →</a>' +
+        '</div>';
+    }
+  }
+  const io = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) { renderPlaylist(); io.disconnect(); }
+  }, { rootMargin: "200px" });
+  io.observe(slot);
+
+  // --- Vidéos épinglées ---
+  const pinnedWrap = document.getElementById("pinned-videos");
+  CONFIG.videos.pinned.forEach((v) => {
+    const card = document.createElement("button");
+    card.className = "vcard";
+    card.setAttribute("type", "button");
+    card.innerHTML =
+      '<div class="thumb"><img src="https://img.youtube.com/vi/' + v.id + '/hqdefault.jpg" alt="" loading="lazy"><div class="play">▶</div></div>' +
+      '<div class="body"><h3>' + escapeHtml(v.title) + '</h3></div>';
+    card.addEventListener("click", () => openModal(v.id));
+    pinnedWrap.appendChild(card);
+  });
+
+  // --- Grille avis/articles + filtres ---
+  const grid = document.getElementById("hub-grid");
+  const suitFor = { review: "♦", article: "♥" };
+  const labelFor = { review: "Avis produit", article: "Article" };
+
+  function renderGrid(filter) {
+    grid.innerHTML = "";
+    const items = CONFIG.content.filter((c) => filter === "all" || c.type === filter);
+    items.forEach((item) => {
+      const a = document.createElement("a");
+      a.className = "card-item";
+      a.href = item.link || "#";
+      if (item.link && item.link !== "#") { a.target = "_blank"; a.rel = "noopener"; }
+      a.innerHTML =
+        (item.template ? '<span class="tpl-badge">Modèle</span>' : '') +
+        '<span class="suit ' + item.type + '">' + suitFor[item.type] + '</span>' +
+        '<h3>' + escapeHtml(item.title) + '</h3>' +
+        '<p>' + escapeHtml(item.excerpt || "") + '</p>' +
+        '<div class="meta"><span>' + escapeHtml(item.date || "") + '</span><span class="read">' + labelFor[item.type] + ' →</span></div>';
+      grid.appendChild(a);
+    });
+  }
+  renderGrid("all");
+
+  document.getElementById("tabs").addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab");
+    if (!btn) return;
+    document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-pressed", "false"));
+    btn.setAttribute("aria-pressed", "true");
+    renderGrid(btn.dataset.filter);
+  });
+
+  // --- Modal vidéo ---
+  const backdrop = document.getElementById("modal-backdrop");
+  const modalRatio = document.getElementById("modal-ratio");
+  function openModal(id) {
+    modalRatio.innerHTML = '<iframe src="https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0" title="Vidéo" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+    backdrop.classList.add("open");
+  }
+  function closeModal() {
+    backdrop.classList.remove("open");
+    modalRatio.innerHTML = "";
+  }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+})();
+</script>
+</body>
+</html>
