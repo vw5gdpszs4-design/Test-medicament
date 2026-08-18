@@ -155,6 +155,35 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    .icon-btn.neutral { color: var(--blue); }
+
+    .icon-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .icon-btn.spin {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .rate-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rate-status-line {
+      padding: 10px 16px 0;
+      font-size: 12px;
+      color: var(--text2);
+      text-align: right;
+    }
+
     /* Component rows */
     .component-row {
       display: flex;
@@ -182,23 +211,15 @@
       min-width: 0;
     }
 
-    .component-row input[type="number"] {
+    .component-row input.num-input {
       width: 100%;
       font-size: 15px;
       border: none;
       background: var(--card2);
       border-radius: 10px;
-      padding: 9px 12px 9px 12px;
-      padding-right: 22px;
+      padding: 9px 22px 9px 12px;
       color: var(--text);
       outline: none;
-      -moz-appearance: textfield;
-    }
-
-    .component-row input[type="number"]::-webkit-outer-spin-button,
-    .component-row input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
     }
 
     .price-wrap .unit {
@@ -301,13 +322,6 @@
       padding: 9px 30px 9px 12px;
       color: var(--text);
       outline: none;
-      -moz-appearance: textfield;
-    }
-
-    .field-input-wrap input::-webkit-outer-spin-button,
-    .field-input-wrap input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
     }
 
     .field-input-wrap .unit {
@@ -462,6 +476,8 @@
   // ===== STORAGE =====
   const STORAGE_KEY = 'profitability_projects_v1';
   const CURRENT_KEY = 'profitability_current_v1';
+  const LIVE_RATE_KEY = 'profitability_live_rate_v1';
+  const LIVE_RATE_MAX_AGE_MS = 6 * 60 * 60 * 1000; // 6h
 
   function loadProjects() {
     try {
@@ -471,15 +487,107 @@
   }
 
   function saveProjects() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); } catch (e) {}
   }
 
   function saveCurrent() {
-    localStorage.setItem(CURRENT_KEY, currentId || '');
+    try { localStorage.setItem(CURRENT_KEY, currentId || ''); } catch (e) {}
   }
 
   function uid() {
     return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  // ===== NUMBER PARSING (accepts "," or "." as decimal separator) =====
+  function parseNum(v) {
+    if (v === null || v === undefined) return 0;
+    const s = String(v).trim().replace(',', '.');
+    const n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function sanitizeDecimalInput(str) {
+    let out = '';
+    let sepFound = false;
+    for (const ch of str) {
+      if (ch >= '0' && ch <= '9') out += ch;
+      else if ((ch === ',' || ch === '.') && !sepFound) { out += ch; sepFound = true; }
+    }
+    return out;
+  }
+
+  function sanitizeIntegerInput(str) {
+    let out = '';
+    for (const ch of str) if (ch >= '0' && ch <= '9') out += ch;
+    return out;
+  }
+
+  // Rewrites an input's value in place while keeping the caret at the same
+  // distance from the end of the string, so live sanitizing doesn't jump the cursor.
+  function applySanitizedValue(el, sanitized) {
+    if (el.value === sanitized) return;
+    const posFromEnd = el.value.length - (el.selectionStart ?? el.value.length);
+    el.value = sanitized;
+    const newPos = Math.max(0, sanitized.length - posFromEnd);
+    try { el.setSelectionRange(newPos, newPos); } catch (e) {}
+  }
+
+  // ===== LIVE $ → € RATE =====
+  let liveRate = null;
+  let liveRateAt = null;
+  let liveRateStatus = 'idle'; // idle | loading | ok | error
+
+  function loadCachedRate() {
+    try {
+      const raw = localStorage.getItem(LIVE_RATE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (typeof data.rate === 'number' && data.ts) return { rate: data.rate, at: new Date(data.ts) };
+    } catch (e) {}
+    return null;
+  }
+
+  function saveCachedRate(rate, at) {
+    try { localStorage.setItem(LIVE_RATE_KEY, JSON.stringify({ rate, ts: at.toISOString() })); } catch (e) {}
+  }
+
+  async function fetchLiveRate() {
+    liveRateStatus = 'loading';
+    try {
+      const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const rate = data && data.rates && data.rates.EUR;
+      if (typeof rate !== 'number') throw new Error('Réponse inattendue');
+      liveRate = rate;
+      liveRateAt = new Date();
+      liveRateStatus = 'ok';
+      saveCachedRate(rate, liveRateAt);
+      return rate;
+    } catch (e) {
+      liveRateStatus = 'error';
+      return null;
+    }
+  }
+
+  function formatRateStatus(p) {
+    if (liveRateStatus === 'loading' && !liveRate) return 'Récupération du cours en direct…';
+    if (liveRate && liveRateAt) {
+      const timeStr = liveRateAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      const rateStr = liveRate.toFixed(4).replace('.', ',');
+      return p.rateAuto
+        ? `Cours du marché appliqué : 1 $ = ${rateStr} € (${timeStr})`
+        : `Taux personnalisé · cours du marché actuel : ${rateStr} € (${timeStr})`;
+    }
+    if (liveRateStatus === 'error') return 'Cours en direct indisponible — saisissez le taux manuellement.';
+    return 'Appuyez sur 🔄 pour récupérer le cours en direct.';
+  }
+
+  const cachedRate = loadCachedRate();
+  if (cachedRate) {
+    liveRate = cachedRate.rate;
+    liveRateAt = cachedRate.at;
+    liveRateStatus = 'ok';
   }
 
   function defaultProject(name) {
@@ -487,10 +595,11 @@
       id: uid(),
       name: name || 'Nouveau projet',
       components: [],
-      salePriceUSD: 0,
-      conversionRate: 0.92,
-      chargesPercent: 0,
-      quantity: 1
+      salePriceUSD: '',
+      conversionRate: liveRate ? String(liveRate) : '0,92',
+      chargesPercent: '',
+      quantity: 1,
+      rateAuto: true
     };
   }
 
@@ -549,11 +658,11 @@
 
   // ===== CALCULATIONS =====
   function computeResults(p) {
-    const totalComponentCost = p.components.reduce((sum, c) => sum + (parseFloat(c.price) || 0), 0);
-    const salePriceUSD = parseFloat(p.salePriceUSD) || 0;
-    const rate = parseFloat(p.conversionRate) || 0;
-    const chargesPct = parseFloat(p.chargesPercent) || 0;
-    const quantity = Math.max(parseFloat(p.quantity) || 0, 0);
+    const totalComponentCost = p.components.reduce((sum, c) => sum + parseNum(c.price), 0);
+    const salePriceUSD = parseNum(p.salePriceUSD);
+    const rate = parseNum(p.conversionRate);
+    const chargesPct = parseNum(p.chargesPercent);
+    const quantity = Math.max(parseNum(p.quantity), 0);
 
     const salePriceEUR = salePriceUSD * rate;
     const chargesAmount = salePriceEUR * (chargesPct / 100);
@@ -619,17 +728,21 @@
           <div class="field-row">
             <div class="field-label">Prix de vente<span class="field-hint">Montant en dollars</span></div>
             <div class="field-input-wrap">
-              <input type="number" inputmode="decimal" step="0.01" id="sale-price" value="${p.salePriceUSD}">
+              <input type="text" inputmode="decimal" id="sale-price" class="num-input" value="${escapeHtml(String(p.salePriceUSD))}">
               <span class="unit">$</span>
             </div>
           </div>
           <div class="field-row">
             <div class="field-label">Taux de conversion<span class="field-hint">1 $ = ? €</span></div>
-            <div class="field-input-wrap">
-              <input type="number" inputmode="decimal" step="0.0001" id="conversion-rate" value="${p.conversionRate}">
-              <span class="unit">€</span>
+            <div class="rate-row">
+              <div class="field-input-wrap">
+                <input type="text" inputmode="decimal" id="conversion-rate" class="num-input" value="${escapeHtml(String(p.conversionRate))}">
+                <span class="unit">€</span>
+              </div>
+              <button class="icon-btn neutral${liveRateStatus === 'loading' ? ' spin' : ''}" id="refresh-rate" title="Actualiser le cours" ${liveRateStatus === 'loading' ? 'disabled' : ''}>🔄</button>
             </div>
           </div>
+          <div class="rate-status-line">${formatRateStatus(p)}</div>
           <div class="computed-line">Soit <b>${fmtEUR.format(r.salePriceEUR)}</b> par unité</div>
         </div>
       </div>
@@ -640,7 +753,7 @@
           <div class="field-row">
             <div class="field-label">Charges à déduire<span class="field-hint">Frais, commissions, taxes…</span></div>
             <div class="field-input-wrap">
-              <input type="number" inputmode="decimal" step="0.1" id="charges-percent" value="${p.chargesPercent}">
+              <input type="text" inputmode="decimal" id="charges-percent" class="num-input" value="${escapeHtml(String(p.chargesPercent))}">
               <span class="unit">%</span>
             </div>
           </div>
@@ -654,7 +767,7 @@
           <div class="field-row">
             <div class="field-label">Quantité vendue / produite</div>
             <div class="field-input-wrap">
-              <input type="number" inputmode="numeric" step="1" min="0" id="quantity" value="${p.quantity}">
+              <input type="text" inputmode="numeric" id="quantity" class="num-input" value="${escapeHtml(String(p.quantity))}">
               <span class="unit">u.</span>
             </div>
           </div>
@@ -737,9 +850,9 @@
       const row = document.createElement('div');
       row.className = 'component-row';
       row.innerHTML = `
-        <input type="text" placeholder="Nom du composant" value="${escapeHtml(c.name)}" data-idx="${idx}" class="comp-name">
+        <input type="text" id="comp-name-${idx}" placeholder="Nom du composant" value="${escapeHtml(c.name)}" data-idx="${idx}" class="comp-name">
         <div class="price-wrap">
-          <input type="number" inputmode="decimal" step="0.01" placeholder="0" value="${c.price}" data-idx="${idx}" class="comp-price">
+          <input type="text" id="comp-price-${idx}" inputmode="decimal" placeholder="0" value="${escapeHtml(String(c.price))}" data-idx="${idx}" class="comp-price num-input">
           <span class="unit">€</span>
         </div>
         <button class="remove-btn" data-idx="${idx}" title="Supprimer">✕</button>
@@ -759,7 +872,9 @@
     list.querySelectorAll('.comp-price').forEach(el => {
       el.addEventListener('input', (e) => {
         const idx = parseInt(e.target.dataset.idx, 10);
-        p.components[idx].price = e.target.value;
+        const sanitized = sanitizeDecimalInput(e.target.value);
+        applySanitizedValue(e.target, sanitized);
+        p.components[idx].price = sanitized;
         saveProjects();
         refreshResultsOnly();
       });
@@ -807,25 +922,46 @@
     });
 
     document.getElementById('sale-price').addEventListener('input', (e) => {
-      p.salePriceUSD = e.target.value;
+      const sanitized = sanitizeDecimalInput(e.target.value);
+      applySanitizedValue(e.target, sanitized);
+      p.salePriceUSD = sanitized;
       saveProjects();
       refreshResultsOnly();
     });
 
     document.getElementById('conversion-rate').addEventListener('input', (e) => {
-      p.conversionRate = e.target.value;
+      const sanitized = sanitizeDecimalInput(e.target.value);
+      applySanitizedValue(e.target, sanitized);
+      p.conversionRate = sanitized;
+      p.rateAuto = false;
       saveProjects();
       refreshResultsOnly();
     });
 
+    document.getElementById('refresh-rate').addEventListener('click', async () => {
+      liveRateStatus = 'loading';
+      refreshResultsOnly();
+      const rate = await fetchLiveRate();
+      if (rate) {
+        p.conversionRate = rate.toFixed(4).replace('.', ',');
+        p.rateAuto = true;
+        saveProjects();
+      }
+      refreshResultsOnly();
+    });
+
     document.getElementById('charges-percent').addEventListener('input', (e) => {
-      p.chargesPercent = e.target.value;
+      const sanitized = sanitizeDecimalInput(e.target.value);
+      applySanitizedValue(e.target, sanitized);
+      p.chargesPercent = sanitized;
       saveProjects();
       refreshResultsOnly();
     });
 
     document.getElementById('quantity').addEventListener('input', (e) => {
-      p.quantity = e.target.value;
+      const sanitized = sanitizeIntegerInput(e.target.value);
+      applySanitizedValue(e.target, sanitized);
+      p.quantity = sanitized;
       saveProjects();
       refreshResultsOnly();
     });
@@ -850,6 +986,34 @@
 
   renderProjectsBar();
   renderContent();
+
+  // ===== BACKGROUND LIVE RATE REFRESH =====
+  function applyLiveRateToAutoProjects() {
+    if (!liveRate) return;
+    let changed = false;
+    projects.forEach(p => {
+      if (p.rateAuto) {
+        p.conversionRate = liveRate.toFixed(4).replace('.', ',');
+        changed = true;
+      }
+    });
+    if (changed) saveProjects();
+  }
+
+  (async () => {
+    const isStale = !cachedRate || (Date.now() - cachedRate.at.getTime() > LIVE_RATE_MAX_AGE_MS);
+    if (isStale) {
+      await fetchLiveRate();
+    }
+    applyLiveRateToAutoProjects();
+    refreshResultsOnly();
+  })();
+
+  setInterval(async () => {
+    await fetchLiveRate();
+    applyLiveRateToAutoProjects();
+    refreshResultsOnly();
+  }, LIVE_RATE_MAX_AGE_MS);
 </script>
 </body>
 </html>
