@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Médicaments">
+  <meta name="apple-mobile-web-app-title" content="Rentabilité">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#f5f5f7">
-  <title>Médicaments</title>
+  <title>Rentabilité de projet</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
@@ -39,17 +39,10 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Top status area */
-    .status-bar {
-      height: env(safe-area-inset-top, 44px);
-      background: var(--bg);
-    }
+    .status-bar { height: env(safe-area-inset-top, 44px); background: var(--bg); }
 
     .header {
       padding: 12px 20px 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
     }
 
     .header-title {
@@ -65,82 +58,46 @@
       margin-top: 2px;
     }
 
-    /* Hero card */
-    .hero {
-      margin: 0 16px 16px;
-      border-radius: var(--radius);
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--shadow);
+    /* Project switcher */
+    .projects-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 14px 16px 4px;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
+    .projects-bar::-webkit-scrollbar { display: none; }
 
-    .hero.take {
-      background: linear-gradient(135deg, #007AFF 0%, #0056CC 100%);
-    }
-
-    .hero.skip {
-      background: linear-gradient(135deg, #e5e5ea 0%, #d1d1d6 100%);
-    }
-
-    .hero-emoji {
-      font-size: 48px;
-      margin-bottom: 10px;
-      display: block;
-    }
-
-    .hero-status {
-      font-size: 26px;
-      font-weight: 700;
-      color: white;
-      letter-spacing: -0.3px;
-    }
-
-    .hero.skip .hero-status {
-      color: var(--text);
-    }
-
-    .hero-sub {
+    .chip {
+      flex-shrink: 0;
+      padding: 9px 16px;
+      border-radius: 20px;
+      background: var(--card);
+      color: var(--text2);
       font-size: 14px;
-      margin-top: 4px;
-      color: rgba(255,255,255,0.8);
-      font-weight: 400;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      border: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
     }
 
-    .hero.skip .hero-sub {
-      color: var(--text2);
-    }
-
-    .hero-next {
-      margin-top: 14px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
+    .chip.active {
+      background: var(--blue);
       color: white;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
     }
 
-    .hero.skip .hero-next {
-      background: rgba(0,0,0,0.06);
-      color: var(--text2);
+    .chip.add {
+      color: var(--blue);
+      background: var(--card2);
+      font-weight: 700;
+      box-shadow: none;
     }
 
-    .hero-deco {
-      position: absolute;
-      right: -20px;
-      top: -20px;
-      font-size: 120px;
-      opacity: 0.08;
-      pointer-events: none;
-    }
-
-    /* Section */
-    .section {
-      margin: 0 16px 24px;
-    }
+    .section { margin: 0 16px 20px; }
 
     .section-label {
       font-size: 13px;
@@ -150,6 +107,9 @@
       color: var(--text2);
       margin-bottom: 8px;
       padding-left: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .card {
@@ -159,89 +119,29 @@
       box-shadow: var(--shadow);
     }
 
-    /* Calendar */
-    .cal-header {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      padding: 12px 8px 4px;
-      gap: 4px;
-    }
+    .card-pad { padding: 16px; }
 
-    .cal-day-name {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text2);
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      padding: 4px 8px 14px;
-    }
-
-    .cal-cell {
-      aspect-ratio: 1;
+    /* Project name field */
+    .project-name-row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      font-size: 14px;
-      font-weight: 500;
-      position: relative;
-      transition: transform 0.1s;
+      gap: 10px;
+      padding: 14px 16px;
     }
 
-    .cal-cell.empty { background: none; }
-    .cal-cell.past { color: var(--gray2); }
-    .cal-cell.regular { color: var(--text2); }
-
-    .cal-cell.today {
-      background: var(--blue);
-      color: white;
+    .project-name-row input {
+      flex: 1;
+      font-size: 20px;
       font-weight: 700;
-    }
-
-    .cal-cell.dose-day:not(.today):not(.past) {
-      background: rgba(0,122,255,0.12);
-      color: var(--blue);
-      font-weight: 700;
-    }
-
-    .cal-cell.dose-day.past {
-      background: rgba(52,199,89,0.12);
-      color: var(--green);
-      font-weight: 600;
-    }
-
-    .cal-cell.today.dose-day::after {
-      content: '•';
-      position: absolute;
-      bottom: 1px;
-      font-size: 8px;
-      color: rgba(255,255,255,0.7);
-      line-height: 1;
-    }
-
-    .cal-month-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px 6px;
-    }
-
-    .cal-month-title {
-      font-size: 17px;
-      font-weight: 600;
+      border: none;
+      background: transparent;
       color: var(--text);
+      outline: none;
     }
 
-    .nav-btn {
-      width: 28px;
-      height: 28px;
+    .icon-btn {
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--card2);
       border: none;
@@ -249,102 +149,298 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
-      color: var(--blue);
-      transition: background 0.15s;
+      font-size: 15px;
+      color: var(--red);
+      flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
     }
 
-    .nav-btn:active { background: var(--gray2); }
-
-    /* Upcoming list */
-    .dose-row {
+    /* Component rows */
+    .component-row {
       display: flex;
       align-items: center;
-      padding: 14px 16px;
+      gap: 10px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--card2);
     }
 
-    .dose-row:last-child { border-bottom: none; }
+    .component-row input[type="text"] {
+      flex: 1.4;
+      min-width: 0;
+      font-size: 15px;
+      border: none;
+      background: var(--card2);
+      border-radius: 10px;
+      padding: 9px 12px;
+      color: var(--text);
+      outline: none;
+    }
 
-    .dose-dot {
-      width: 10px;
-      height: 10px;
+    .component-row .price-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+
+    .component-row input[type="number"] {
+      width: 100%;
+      font-size: 15px;
+      border: none;
+      background: var(--card2);
+      border-radius: 10px;
+      padding: 9px 12px 9px 12px;
+      padding-right: 22px;
+      color: var(--text);
+      outline: none;
+      -moz-appearance: textfield;
+    }
+
+    .component-row input[type="number"]::-webkit-outer-spin-button,
+    .component-row input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .price-wrap .unit {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: var(--text2);
+      pointer-events: none;
+    }
+
+    .remove-btn {
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      margin-right: 14px;
+      background: rgba(255,59,48,0.1);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: var(--red);
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .add-row-btn {
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      background: none;
+      color: var(--blue);
+      font-size: 15px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .empty-hint {
+      padding: 20px 16px;
+      color: var(--text2);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .components-total {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--card2);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text2);
+    }
+
+    .components-total span:last-child { color: var(--text); }
+
+    /* Input fields (labelled) */
+    .field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--card2);
+      gap: 10px;
+    }
+    .field-row:last-child { border-bottom: none; }
+
+    .field-label {
+      font-size: 15px;
+      color: var(--text);
       flex-shrink: 0;
     }
 
-    .dose-dot.blue { background: var(--blue); }
-    .dose-dot.green { background: var(--green); }
-    .dose-dot.gray { background: var(--gray2); }
-
-    .dose-date {
-      flex: 1;
-    }
-
-    .dose-date-main {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .dose-date-sub {
+    .field-label .field-hint {
+      display: block;
       font-size: 12px;
       color: var(--text2);
+      font-weight: 400;
       margin-top: 1px;
     }
 
-    .dose-badge {
-      font-size: 12px;
+    .field-input-wrap {
+      position: relative;
+      width: 130px;
+      flex-shrink: 0;
+    }
+
+    .field-input-wrap input {
+      width: 100%;
+      font-size: 16px;
       font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
+      text-align: right;
+      border: none;
+      background: var(--card2);
+      border-radius: 10px;
+      padding: 9px 30px 9px 12px;
+      color: var(--text);
+      outline: none;
+      -moz-appearance: textfield;
     }
 
-    .dose-badge.next { background: rgba(0,122,255,0.1); color: var(--blue); }
-    .dose-badge.done { background: rgba(52,199,89,0.1); color: var(--green); }
-
-    /* Streak */
-    .streak-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px 20px;
-      box-shadow: var(--shadow);
-      display: flex;
-      align-items: center;
-      gap: 16px;
+    .field-input-wrap input::-webkit-outer-spin-button,
+    .field-input-wrap input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
 
-    .streak-icon {
-      font-size: 36px;
+    .field-input-wrap .unit {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      pointer-events: none;
     }
 
-    .streak-text .num {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--orange);
-      line-height: 1;
-    }
-
-    .streak-text .label {
+    .computed-line {
+      padding: 10px 16px 14px;
       font-size: 13px;
       color: var(--text2);
+      text-align: right;
+    }
+
+    .computed-line b { color: var(--blue); font-weight: 700; }
+
+    /* Result hero */
+    .result-hero {
+      margin: 0 16px 16px;
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: linear-gradient(135deg, #34C759 0%, #248A3D 100%);
+    }
+
+    .result-hero.negative {
+      background: linear-gradient(135deg, #FF3B30 0%, #B8291F 100%);
+    }
+
+    .result-deco {
+      position: absolute;
+      right: -16px;
+      top: -16px;
+      font-size: 100px;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+
+    .result-label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .result-value {
+      font-size: 38px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.5px;
+      margin-top: 4px;
+    }
+
+    .result-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.85);
+      margin-top: 6px;
+    }
+
+    .result-breakdown {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .result-chip {
+      background: rgba(255,255,255,0.16);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .result-chip .rc-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.75);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .result-chip .rc-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
       margin-top: 2px;
     }
 
-    .bottom-safe {
-      height: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    /* Detail table */
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--card2);
+      font-size: 14px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row .dr-label { color: var(--text2); }
+    .detail-row .dr-value { font-weight: 600; color: var(--text); }
+    .detail-row.total .dr-label,
+    .detail-row.total .dr-value { color: var(--text); font-weight: 700; }
+    .detail-row.negative .dr-value { color: var(--red); }
+
+    .bottom-safe { height: calc(env(safe-area-inset-bottom, 0px) + 24px); }
+
+    .no-projects {
+      margin: 60px 20px;
+      text-align: center;
+      color: var(--text2);
     }
 
-    /* Confirm animation */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.04); }
-      100% { transform: scale(1); }
-    }
+    .no-projects .np-emoji { font-size: 48px; display: block; margin-bottom: 12px; }
 
-    .hero.animate { animation: pulse 0.3s ease; }
+    .primary-btn {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 12px 24px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
   </style>
 </head>
 <body>
@@ -352,286 +448,408 @@
 <div class="status-bar"></div>
 
 <div class="header">
-  <div>
-    <div class="header-title">Médicaments</div>
-    <div class="header-sub" id="today-label"></div>
-  </div>
+  <div class="header-title">Rentabilité</div>
+  <div class="header-sub">Calculez la marge de vos projets</div>
 </div>
 
-<!-- Hero Card -->
-<div class="hero" id="hero-card">
-  <div class="hero-deco">💊</div>
-  <span class="hero-emoji" id="hero-emoji"></span>
-  <div class="hero-status" id="hero-status"></div>
-  <div class="hero-sub" id="hero-sub"></div>
-  <div class="hero-next" id="hero-next"></div>
-</div>
+<div class="projects-bar" id="projects-bar"></div>
 
-<!-- Calendar -->
-<div class="section">
-  <div class="section-label">Calendrier</div>
-  <div class="card">
-    <div class="cal-month-nav">
-      <button class="nav-btn" id="prev-month">‹</button>
-      <div class="cal-month-title" id="cal-month-title"></div>
-      <button class="nav-btn" id="next-month">›</button>
-    </div>
-    <div class="cal-header">
-      <div class="cal-day-name">L</div>
-      <div class="cal-day-name">M</div>
-      <div class="cal-day-name">M</div>
-      <div class="cal-day-name">J</div>
-      <div class="cal-day-name">V</div>
-      <div class="cal-day-name">S</div>
-      <div class="cal-day-name">D</div>
-    </div>
-    <div class="cal-grid" id="cal-grid"></div>
-  </div>
-</div>
-
-<!-- Upcoming doses -->
-<div class="section">
-  <div class="section-label">Prochaines prises</div>
-  <div class="card" id="upcoming-list"></div>
-</div>
-
-<!-- Streak -->
-<div class="section">
-  <div class="section-label">Suivi</div>
-  <div class="streak-card">
-    <div class="streak-icon">🔥</div>
-    <div class="streak-text">
-      <div class="num" id="streak-num">—</div>
-      <div class="label">prises consécutives respectées</div>
-    </div>
-  </div>
-</div>
+<div id="app-content"></div>
 
 <div class="bottom-safe"></div>
 
 <script>
-  // === CONFIG ===
-  const START_DATE = new Date(2026, 4, 22); // 22 mai 2026 (mois 0-indexed)
-  const INTERVAL = 4; // tous les 4 jours
+  // ===== STORAGE =====
+  const STORAGE_KEY = 'profitability_projects_v1';
+  const CURRENT_KEY = 'profitability_current_v1';
 
-  // === HELPERS ===
-  function stripTime(d) {
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  function loadProjects() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
   }
 
-  function isDoseDay(date) {
-    const d = stripTime(date);
-    const s = stripTime(START_DATE);
-    const diff = Math.round((d - s) / (1000 * 60 * 60 * 24));
-    return diff >= 0 && diff % INTERVAL === 0;
+  function saveProjects() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
   }
 
-  function nextDoseAfter(date) {
-    const d = stripTime(date);
-    let candidate = new Date(d);
-    candidate.setDate(candidate.getDate() + 1);
-    while (!isDoseDay(candidate)) {
-      candidate.setDate(candidate.getDate() + 1);
+  function saveCurrent() {
+    localStorage.setItem(CURRENT_KEY, currentId || '');
+  }
+
+  function uid() {
+    return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function defaultProject(name) {
+    return {
+      id: uid(),
+      name: name || 'Nouveau projet',
+      components: [],
+      salePriceUSD: 0,
+      conversionRate: 0.92,
+      chargesPercent: 0,
+      quantity: 1
+    };
+  }
+
+  let projects = loadProjects();
+  let currentId = localStorage.getItem(CURRENT_KEY) || (projects[0] && projects[0].id) || null;
+
+  if (projects.length === 0) {
+    const p = defaultProject('Mon premier projet');
+    projects.push(p);
+    currentId = p.id;
+    saveProjects();
+    saveCurrent();
+  }
+
+  function getCurrent() {
+    return projects.find(p => p.id === currentId) || null;
+  }
+
+  // ===== FORMATTING =====
+  const fmtEUR = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 });
+  const fmtUSD = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+  const fmtPct = (n) => `${n.toFixed(1).replace(/\.0$/, '')} %`;
+
+  // ===== RENDER: PROJECT TABS =====
+  function renderProjectsBar() {
+    const bar = document.getElementById('projects-bar');
+    bar.innerHTML = '';
+
+    projects.forEach(p => {
+      const chip = document.createElement('button');
+      chip.className = 'chip' + (p.id === currentId ? ' active' : '');
+      chip.textContent = p.name || 'Sans nom';
+      chip.addEventListener('click', () => {
+        currentId = p.id;
+        saveCurrent();
+        renderProjectsBar();
+        renderContent();
+      });
+      bar.appendChild(chip);
+    });
+
+    const addChip = document.createElement('button');
+    addChip.className = 'chip add';
+    addChip.textContent = '+ Nouveau projet';
+    addChip.addEventListener('click', () => {
+      const p = defaultProject(`Projet ${projects.length + 1}`);
+      projects.push(p);
+      currentId = p.id;
+      saveProjects();
+      saveCurrent();
+      renderProjectsBar();
+      renderContent();
+    });
+    bar.appendChild(addChip);
+  }
+
+  // ===== CALCULATIONS =====
+  function computeResults(p) {
+    const totalComponentCost = p.components.reduce((sum, c) => sum + (parseFloat(c.price) || 0), 0);
+    const salePriceUSD = parseFloat(p.salePriceUSD) || 0;
+    const rate = parseFloat(p.conversionRate) || 0;
+    const chargesPct = parseFloat(p.chargesPercent) || 0;
+    const quantity = Math.max(parseFloat(p.quantity) || 0, 0);
+
+    const salePriceEUR = salePriceUSD * rate;
+    const chargesAmount = salePriceEUR * (chargesPct / 100);
+    const netAfterCharges = salePriceEUR - chargesAmount;
+    const profitPerUnit = netAfterCharges - totalComponentCost;
+    const marginPct = salePriceEUR > 0 ? (profitPerUnit / salePriceEUR) * 100 : 0;
+
+    const totalRevenue = salePriceEUR * quantity;
+    const totalCharges = chargesAmount * quantity;
+    const totalCost = totalComponentCost * quantity;
+    const totalProfit = profitPerUnit * quantity;
+
+    return {
+      totalComponentCost, salePriceUSD, rate, chargesPct, quantity,
+      salePriceEUR, chargesAmount, netAfterCharges, profitPerUnit, marginPct,
+      totalRevenue, totalCharges, totalCost, totalProfit
+    };
+  }
+
+  // ===== RENDER: MAIN CONTENT =====
+  function renderContent() {
+    const container = document.getElementById('app-content');
+    const p = getCurrent();
+
+    if (!p) {
+      container.innerHTML = `
+        <div class="no-projects">
+          <span class="np-emoji">📊</span>
+          Aucun projet pour l'instant.<br>Créez-en un pour commencer.
+        </div>`;
+      return;
     }
-    return candidate;
+
+    const r = computeResults(p);
+
+    container.innerHTML = `
+      <div class="section">
+        <div class="section-label">Nom du projet</div>
+        <div class="card">
+          <div class="project-name-row">
+            <input type="text" id="project-name" value="${escapeHtml(p.name)}" placeholder="Nom du projet">
+            <button class="icon-btn" id="delete-project" title="Supprimer le projet">🗑</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Composants</div>
+        <div class="card" id="components-card">
+          ${p.components.length === 0 ? '<div class="empty-hint">Aucun composant ajouté</div>' : ''}
+          <div id="components-list"></div>
+          <button class="add-row-btn" id="add-component">+ Ajouter un composant</button>
+          <div class="components-total">
+            <span>Coût total des composants</span>
+            <span>${fmtEUR.format(r.totalComponentCost)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Prix de vente</div>
+        <div class="card">
+          <div class="field-row">
+            <div class="field-label">Prix de vente<span class="field-hint">Montant en dollars</span></div>
+            <div class="field-input-wrap">
+              <input type="number" inputmode="decimal" step="0.01" id="sale-price" value="${p.salePriceUSD}">
+              <span class="unit">$</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Taux de conversion<span class="field-hint">1 $ = ? €</span></div>
+            <div class="field-input-wrap">
+              <input type="number" inputmode="decimal" step="0.0001" id="conversion-rate" value="${p.conversionRate}">
+              <span class="unit">€</span>
+            </div>
+          </div>
+          <div class="computed-line">Soit <b>${fmtEUR.format(r.salePriceEUR)}</b> par unité</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Charges</div>
+        <div class="card">
+          <div class="field-row">
+            <div class="field-label">Charges à déduire<span class="field-hint">Frais, commissions, taxes…</span></div>
+            <div class="field-input-wrap">
+              <input type="number" inputmode="decimal" step="0.1" id="charges-percent" value="${p.chargesPercent}">
+              <span class="unit">%</span>
+            </div>
+          </div>
+          <div class="computed-line">Soit <b>${fmtEUR.format(r.chargesAmount)}</b> déduits par unité</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Quantité</div>
+        <div class="card">
+          <div class="field-row">
+            <div class="field-label">Quantité vendue / produite</div>
+            <div class="field-input-wrap">
+              <input type="number" inputmode="numeric" step="1" min="0" id="quantity" value="${p.quantity}">
+              <span class="unit">u.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Résultat</div>
+        <div class="result-hero ${r.totalProfit < 0 ? 'negative' : ''}">
+          <div class="result-deco">${r.totalProfit < 0 ? '📉' : '💰'}</div>
+          <div class="result-label">Bénéfice total (${r.quantity} unité${r.quantity > 1 ? 's' : ''})</div>
+          <div class="result-value">${fmtEUR.format(r.totalProfit)}</div>
+          <div class="result-sub">${fmtEUR.format(r.profitPerUnit)} par unité · marge ${fmtPct(r.marginPct)}</div>
+          <div class="result-breakdown">
+            <div class="result-chip">
+              <div class="rc-label">Chiffre d'affaires</div>
+              <div class="rc-value">${fmtEUR.format(r.totalRevenue)}</div>
+            </div>
+            <div class="result-chip">
+              <div class="rc-label">Charges totales</div>
+              <div class="rc-value">${fmtEUR.format(r.totalCharges)}</div>
+            </div>
+            <div class="result-chip">
+              <div class="rc-label">Coût composants</div>
+              <div class="rc-value">${fmtEUR.format(r.totalCost)}</div>
+            </div>
+            <div class="result-chip">
+              <div class="rc-label">Bénéfice / unité</div>
+              <div class="rc-value">${fmtEUR.format(r.profitPerUnit)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="detail-row">
+            <span class="dr-label">Prix de vente (par unité)</span>
+            <span class="dr-value">${fmtEUR.format(r.salePriceEUR)} <span style="color:var(--text2);font-weight:400;">(${fmtUSD.format(r.salePriceUSD)})</span></span>
+          </div>
+          <div class="detail-row negative">
+            <span class="dr-label">− Charges (${fmtPct(r.chargesPct)})</span>
+            <span class="dr-value">− ${fmtEUR.format(r.chargesAmount)}</span>
+          </div>
+          <div class="detail-row">
+            <span class="dr-label">= Revenu net après charges</span>
+            <span class="dr-value">${fmtEUR.format(r.netAfterCharges)}</span>
+          </div>
+          <div class="detail-row negative">
+            <span class="dr-label">− Coût des composants</span>
+            <span class="dr-value">− ${fmtEUR.format(r.totalComponentCost)}</span>
+          </div>
+          <div class="detail-row total">
+            <span class="dr-label">= Bénéfice net par unité</span>
+            <span class="dr-value">${fmtEUR.format(r.profitPerUnit)}</span>
+          </div>
+          <div class="detail-row total">
+            <span class="dr-label">= Bénéfice total (× ${r.quantity})</span>
+            <span class="dr-value">${fmtEUR.format(r.totalProfit)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    renderComponents();
+    bindFieldEvents();
   }
 
-  function daysUntil(target) {
-    const today = stripTime(new Date());
-    return Math.round((target - today) / (1000 * 60 * 60 * 24));
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
   }
 
-  const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
-  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  const MOIS_COURT = ['jan.','fév.','mar.','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
-
-  function formatDate(d) {
-    return `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`;
-  }
-
-  // === TODAY ===
-  const today = stripTime(new Date());
-  const todayIsDose = isDoseDay(today);
-
-  document.getElementById('today-label').textContent =
-    `${JOURS[today.getDay()]} ${today.getDate()} ${MOIS[today.getMonth()]} ${today.getFullYear()}`;
-
-  // === HERO ===
-  const hero = document.getElementById('hero-card');
-  if (todayIsDose) {
-    hero.classList.add('take');
-    document.getElementById('hero-emoji').textContent = '💊';
-    document.getElementById('hero-status').textContent = "C'est le jour J !";
-    document.getElementById('hero-sub').textContent = 'Pensez à prendre votre médicament aujourd\'hui.';
-    const next = nextDoseAfter(today);
-    document.getElementById('hero-next').innerHTML = `📅 Prochaine prise : ${formatDate(next)}`;
-  } else {
-    hero.classList.add('skip');
-    document.getElementById('hero-emoji').textContent = '😌';
-    document.getElementById('hero-status').textContent = 'Pas de prise aujourd\'hui';
-    const next = nextDoseAfter(today);
-    const days = daysUntil(next);
-    document.getElementById('hero-sub').textContent = `Vous pouvez souffler.`;
-    document.getElementById('hero-next').innerHTML =
-      `📅 Prochaine prise dans ${days} jour${days > 1 ? 's' : ''} — ${formatDate(next)}`;
-  }
-
-  // === CALENDAR ===
-  let calYear = today.getFullYear();
-  let calMonth = today.getMonth();
-
-  function renderCalendar() {
-    document.getElementById('cal-month-title').textContent =
-      `${MOIS[calMonth].charAt(0).toUpperCase() + MOIS[calMonth].slice(1)} ${calYear}`;
-
-    const grid = document.getElementById('cal-grid');
-    grid.innerHTML = '';
-
-    const firstDay = new Date(calYear, calMonth, 1);
-    // Monday = 0 offset
-    let startDow = firstDay.getDay(); // 0=Sun
-    startDow = (startDow + 6) % 7; // convert to Mon=0
-
-    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-
-    // Empty cells
-    for (let i = 0; i < startDow; i++) {
-      const el = document.createElement('div');
-      el.className = 'cal-cell empty';
-      grid.appendChild(el);
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(calYear, calMonth, d);
-      const el = document.createElement('div');
-      el.className = 'cal-cell';
-      el.textContent = d;
-
-      const isToday = date.getTime() === today.getTime();
-      const isPast = date < today;
-      const isDose = isDoseDay(date);
-
-      if (isToday) el.classList.add('today');
-      else if (isPast) el.classList.add('past');
-      else el.classList.add('regular');
-
-      if (isDose) el.classList.add('dose-day');
-
-      grid.appendChild(el);
-    }
-  }
-
-  document.getElementById('prev-month').addEventListener('click', () => {
-    calMonth--;
-    if (calMonth < 0) { calMonth = 11; calYear--; }
-    renderCalendar();
-  });
-
-  document.getElementById('next-month').addEventListener('click', () => {
-    calMonth++;
-    if (calMonth > 11) { calMonth = 0; calYear++; }
-    renderCalendar();
-  });
-
-  renderCalendar();
-
-  // === UPCOMING ===
-  function renderUpcoming() {
-    const list = document.getElementById('upcoming-list');
+  function renderComponents() {
+    const p = getCurrent();
+    const list = document.getElementById('components-list');
+    if (!list) return;
     list.innerHTML = '';
 
-    // Get last 2 past doses + next 4 upcoming
-    const doses = [];
-
-    // Past doses (last 2)
-    let d = new Date(today);
-    d.setDate(d.getDate() - 1);
-    let pastCount = 0;
-    while (pastCount < 2) {
-      if (isDoseDay(d) && d >= stripTime(START_DATE)) {
-        doses.unshift({ date: new Date(d), type: 'done' });
-        pastCount++;
-      }
-      d.setDate(d.getDate() - 1);
-      if (d < stripTime(START_DATE)) break;
-    }
-
-    // Today if dose
-    if (todayIsDose) doses.push({ date: new Date(today), type: 'today' });
-
-    // Next 5 upcoming
-    let upcoming = new Date(today);
-    upcoming.setDate(upcoming.getDate() + (todayIsDose ? 1 : 0));
-    let count = 0;
-    while (count < 5) {
-      if (!todayIsDose || upcoming > today) {
-        // find next
-      }
-      if (isDoseDay(upcoming) && upcoming > today) {
-        doses.push({ date: new Date(upcoming), type: 'next' });
-        count++;
-      }
-      upcoming.setDate(upcoming.getDate() + 1);
-    }
-
-    doses.forEach((item, i) => {
+    p.components.forEach((c, idx) => {
       const row = document.createElement('div');
-      row.className = 'dose-row';
-
-      const dot = document.createElement('div');
-      dot.className = 'dose-dot';
-      if (item.type === 'done') dot.classList.add('green');
-      else if (item.type === 'today') dot.classList.add('blue');
-      else dot.classList.add('gray');
-
-      const dateDiv = document.createElement('div');
-      dateDiv.className = 'dose-date';
-
-      const isToday2 = item.date.getTime() === today.getTime();
-      const label = isToday2 ? "Aujourd'hui" : formatDate(item.date);
-      const daysAway = daysUntil(item.date);
-
-      dateDiv.innerHTML = `
-        <div class="dose-date-main">${label}</div>
-        <div class="dose-date-sub">${item.type === 'done' ? 'Prise effectuée' : (isToday2 ? 'À prendre aujourd\'hui' : `Dans ${daysAway} jour${daysAway > 1 ? 's' : ''}`)}</div>
+      row.className = 'component-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Nom du composant" value="${escapeHtml(c.name)}" data-idx="${idx}" class="comp-name">
+        <div class="price-wrap">
+          <input type="number" inputmode="decimal" step="0.01" placeholder="0" value="${c.price}" data-idx="${idx}" class="comp-price">
+          <span class="unit">€</span>
+        </div>
+        <button class="remove-btn" data-idx="${idx}" title="Supprimer">✕</button>
       `;
-
-      const badge = document.createElement('div');
-      badge.className = 'dose-badge';
-      if (item.type === 'done') {
-        badge.classList.add('done');
-        badge.textContent = '✓ Pris';
-      } else if (item.type === 'today') {
-        badge.classList.add('next');
-        badge.textContent = '💊 Aujourd\'hui';
-      } else if (i === doses.findIndex(x => x.type === 'next')) {
-        badge.classList.add('next');
-        badge.textContent = 'Prochain';
-      } else {
-        badge.style.color = 'var(--gray2)';
-        badge.textContent = `J+${daysUntil(item.date)}`;
-      }
-
-      row.appendChild(dot);
-      row.appendChild(dateDiv);
-      row.appendChild(badge);
       list.appendChild(row);
+    });
+
+    list.querySelectorAll('.comp-name').forEach(el => {
+      el.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        p.components[idx].name = e.target.value;
+        saveProjects();
+        renderProjectsBar();
+      });
+    });
+
+    list.querySelectorAll('.comp-price').forEach(el => {
+      el.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        p.components[idx].price = e.target.value;
+        saveProjects();
+        refreshResultsOnly();
+      });
+    });
+
+    list.querySelectorAll('.remove-btn').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.closest('.remove-btn').dataset.idx, 10);
+        p.components.splice(idx, 1);
+        saveProjects();
+        renderContent();
+      });
     });
   }
 
-  renderUpcoming();
+  function bindFieldEvents() {
+    const p = getCurrent();
 
-  // === STREAK (how many past doses since start) ===
-  function calcStreak() {
-    let count = 0;
-    let d = new Date(today);
-    while (d >= stripTime(START_DATE)) {
-      if (isDoseDay(d)) count++;
-      d.setDate(d.getDate() - 1);
-    }
-    return count;
+    document.getElementById('project-name').addEventListener('input', (e) => {
+      p.name = e.target.value;
+      saveProjects();
+      renderProjectsBar();
+    });
+
+    document.getElementById('delete-project').addEventListener('click', () => {
+      if (!confirm(`Supprimer le projet "${p.name || 'sans nom'}" ?`)) return;
+      projects = projects.filter(x => x.id !== p.id);
+      if (projects.length === 0) {
+        const np = defaultProject('Mon premier projet');
+        projects.push(np);
+        currentId = np.id;
+      } else {
+        currentId = projects[0].id;
+      }
+      saveProjects();
+      saveCurrent();
+      renderProjectsBar();
+      renderContent();
+    });
+
+    document.getElementById('add-component').addEventListener('click', () => {
+      p.components.push({ name: '', price: '' });
+      saveProjects();
+      renderContent();
+    });
+
+    document.getElementById('sale-price').addEventListener('input', (e) => {
+      p.salePriceUSD = e.target.value;
+      saveProjects();
+      refreshResultsOnly();
+    });
+
+    document.getElementById('conversion-rate').addEventListener('input', (e) => {
+      p.conversionRate = e.target.value;
+      saveProjects();
+      refreshResultsOnly();
+    });
+
+    document.getElementById('charges-percent').addEventListener('input', (e) => {
+      p.chargesPercent = e.target.value;
+      saveProjects();
+      refreshResultsOnly();
+    });
+
+    document.getElementById('quantity').addEventListener('input', (e) => {
+      p.quantity = e.target.value;
+      saveProjects();
+      refreshResultsOnly();
+    });
   }
-  document.getElementById('streak-num').textContent = calcStreak();
+
+  // Re-render only the computed bits without losing input focus while typing
+  function refreshResultsOnly() {
+    const active = document.activeElement;
+    const activeId = active ? active.id : null;
+    const selStart = active && 'selectionStart' in active ? active.selectionStart : null;
+    renderContent();
+    if (activeId) {
+      const el = document.getElementById(activeId);
+      if (el) {
+        el.focus();
+        if (selStart !== null && el.setSelectionRange) {
+          try { el.setSelectionRange(selStart, selStart); } catch (e) {}
+        }
+      }
+    }
+  }
+
+  renderProjectsBar();
+  renderContent();
 </script>
 </body>
 </html>
