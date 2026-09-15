@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Contractions">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#fff5f7">
+<meta name="description" content="Chronomètre et journal des contractions : durée, fréquence, intensité et graphique de l'intervalle entre chaque contraction.">
+<link rel="manifest" href="manifest-contractions.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Contractions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #fff5f7;
+    --card: #ffffff;
+    --card2: #fdeef1;
+    --pink: #ff2d69;
+    --pink-dark: #d81b5c;
+    --green: #0ca30c;
+    --orange: #eb6834;
+    --gray: #898781;
+    --gray2: #e1e0d9;
+    --text: #0b0b0b;
+    --text2: #52514e;
+    --text-muted: #898781;
+    --radius: 18px;
+    --shadow: 0 2px 20px rgba(216, 27, 92, 0.10);
+    /* single-series chart color (validated categorical "red" slot) */
+    --bar: #e34948;
+    --bar-track: #f3ede9;
+  }
+
+  html, body {
+    background: var(--bg);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 40px;
+  }
+
+  .status-bar { height: env(safe-area-inset-top, 44px); background: var(--bg); }
+
+  .header {
+    padding: 10px 20px 8px;
+  }
+  .header-title { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; }
+  .header-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  .section { margin: 0 16px 20px; }
+  .section-label {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 8px; padding-left: 4px;
+  }
+  .card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+
+  /* Timer hero */
+  .timer-card {
+    margin: 0 16px 16px;
+    border-radius: var(--radius);
+    padding: 22px 20px 24px;
+    box-shadow: var(--shadow);
+    background: linear-gradient(135deg, #fff 0%, #fff 100%);
+    text-align: center;
+  }
+
+  .timer-readout {
+    font-size: 15px;
+    color: var(--text2);
+    margin-bottom: 4px;
+    min-height: 18px;
+  }
+
+  .timer-clock {
+    font-variant-numeric: tabular-nums;
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .timer-since {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    min-height: 16px;
+  }
+
+  .timer-btn {
+    width: 148px;
+    height: 148px;
+    border-radius: 50%;
+    border: none;
+    font-size: 17px;
+    font-weight: 700;
+    color: white;
+    background: radial-gradient(circle at 35% 30%, #ff5d8c, var(--pink) 70%);
+    box-shadow: 0 10px 24px rgba(255, 45, 105, 0.35);
+    cursor: pointer;
+    transition: transform 0.08s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.25;
+    padding: 10px;
+  }
+  .timer-btn:active { transform: scale(0.96); }
+
+  .timer-btn.active {
+    background: radial-gradient(circle at 35% 30%, #ff8484, #e33a3a 70%);
+    box-shadow: 0 10px 24px rgba(227, 58, 58, 0.4);
+    animation: pulse-ring 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 10px 24px rgba(227, 58, 58, 0.4), 0 0 0 0 rgba(227,58,58,0.35); }
+    70% { box-shadow: 0 10px 24px rgba(227, 58, 58, 0.4), 0 0 0 16px rgba(227,58,58,0); }
+    100% { box-shadow: 0 10px 24px rgba(227, 58, 58, 0.4), 0 0 0 0 rgba(227,58,58,0); }
+  }
+
+  /* Intensity picker (appears after stopping) */
+  .intensity-picker {
+    margin-top: 18px;
+    display: none;
+  }
+  .intensity-picker.show { display: block; }
+  .intensity-title { font-size: 14px; color: var(--text2); margin-bottom: 10px; }
+  .intensity-row { display: flex; gap: 8px; }
+  .intensity-btn {
+    flex: 1;
+    padding: 12px 6px;
+    border-radius: 12px;
+    border: 1.5px solid var(--gray2);
+    background: var(--card2);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    cursor: pointer;
+  }
+  .intensity-btn[data-level="legere"].picked { background: rgba(12,163,12,0.12); border-color: var(--green); color: var(--green); }
+  .intensity-btn[data-level="moderee"].picked { background: rgba(235,104,52,0.12); border-color: var(--orange); color: var(--orange); }
+  .intensity-btn[data-level="forte"].picked { background: rgba(227,73,72,0.12); border-color: var(--bar); color: var(--bar); }
+  .intensity-skip { text-align: center; margin-top: 10px; font-size: 13px; color: var(--pink); font-weight: 600; cursor: pointer; }
+
+  /* Advisory banner */
+  .advisory {
+    background: linear-gradient(135deg, #fff2f2, #ffe6e6);
+    border: 1px solid rgba(227,58,58,0.25);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: #7a1f1f;
+    display: none;
+  }
+  .advisory.show { display: block; }
+  .advisory b { display: block; margin-bottom: 3px; font-size: 14px; }
+
+  /* Stats row */
+  .stats-row { display: flex; gap: 10px; }
+  .stat-tile {
+    flex: 1;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-value {
+    font-variant-numeric: tabular-nums;
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  /* Chart */
+  .chart-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 8px 10px 4px;
+  }
+  .chart-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .chart-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chart-legend {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    padding: 0 12px 10px;
+  }
+  .bar-hit { cursor: pointer; }
+  .chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--text);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 9px;
+    border-radius: 8px;
+    white-space: nowrap;
+    transform: translate(-50%, -100%);
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 5;
+  }
+  .chart-tooltip.show { opacity: 1; }
+  .chart-wrap { position: relative; }
+
+  /* History */
+  .history-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--card2);
+    gap: 10px;
+  }
+  .history-row:last-child { border-bottom: none; }
+  .hist-idx {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--card2); color: var(--pink-dark);
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .hist-main { flex: 1; min-width: 0; }
+  .hist-time { font-size: 14.5px; font-weight: 600; color: var(--text); }
+  .hist-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .hist-badge {
+    font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 20px;
+    flex-shrink: 0; cursor: pointer; white-space: nowrap;
+  }
+  .hist-badge.legere { background: rgba(12,163,12,0.12); color: var(--green); }
+  .hist-badge.moderee { background: rgba(235,104,52,0.12); color: var(--orange); }
+  .hist-badge.forte { background: rgba(227,73,72,0.12); color: var(--bar); }
+  .hist-badge.none { background: var(--card2); color: var(--text-muted); }
+  .hist-del {
+    width: 26px; height: 26px; border-radius: 50%; border: none;
+    background: var(--card2); color: var(--gray); font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; cursor: pointer;
+  }
+
+  .history-empty { padding: 28px 20px; text-align: center; color: var(--text-muted); font-size: 14px; }
+
+  /* Actions */
+  .actions-row { display: flex; gap: 10px; }
+  .btn-secondary {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--gray2);
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 13px;
+    border-radius: 14px;
+    cursor: pointer;
+  }
+  .btn-secondary.danger { color: var(--bar); border-color: rgba(227,73,72,0.35); }
+
+  /* Manual add sheet */
+  .sheet-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    display: none; align-items: flex-end; justify-content: center; z-index: 20;
+  }
+  .sheet-backdrop.show { display: flex; }
+  .sheet {
+    background: var(--card);
+    width: 100%;
+    max-width: 480px;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  }
+  .sheet-title { font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+  .field-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .field { flex: 1; }
+  .field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+  .field input[type="time"] {
+    width: 100%; padding: 11px 10px; border-radius: 10px; border: 1.5px solid var(--gray2);
+    font-size: 15px; background: var(--card2); color: var(--text);
+  }
+  .sheet-actions { display: flex; gap: 10px; margin-top: 6px; }
+  .btn-primary {
+    flex: 1; background: var(--pink); color: #fff; border: none; font-weight: 700;
+    font-size: 15px; padding: 13px; border-radius: 14px; cursor: pointer;
+  }
+
+  .footnote {
+    margin: 18px 16px 0;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .bottom-safe { height: calc(env(safe-area-inset-bottom, 0px) + 10px); }
+</style>
+</head>
+<body>
+
+<div class="status-bar"></div>
+
+<div class="header">
+  <div class="header-title">Contractions</div>
+  <div class="header-sub" id="today-label"></div>
+</div>
+
+<!-- Timer -->
+<div class="timer-card">
+  <div class="timer-readout" id="timer-readout">Prête à démarrer</div>
+  <div class="timer-clock" id="timer-clock">00:00</div>
+  <div class="timer-since" id="timer-since"></div>
+  <button class="timer-btn" id="timer-btn">Démarrer<br>une contraction</button>
+
+  <div class="intensity-picker" id="intensity-picker">
+    <div class="intensity-title" id="intensity-title">Intensité de cette contraction ?</div>
+    <div class="intensity-row">
+      <button class="intensity-btn" data-level="legere">Légère</button>
+      <button class="intensity-btn" data-level="moderee">Modérée</button>
+      <button class="intensity-btn" data-level="forte">Forte</button>
+    </div>
+    <div class="intensity-skip" id="intensity-skip">Passer</div>
+  </div>
+</div>
+
+<!-- Advisory -->
+<div class="section" style="margin-top:-6px;">
+  <div class="advisory" id="advisory">
+    <b>⚠️ Contractions rapprochées et régulières</b>
+    <span id="advisory-text"></span>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="section">
+  <div class="section-label">Résumé</div>
+  <div class="stats-row">
+    <div class="stat-tile">
+      <div class="stat-value" id="stat-count">0</div>
+      <div class="stat-label">dernière heure</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-value" id="stat-interval">—</div>
+      <div class="stat-label">intervalle moyen</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-value" id="stat-duration">—</div>
+      <div class="stat-label">durée moyenne</div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart -->
+<div class="section">
+  <div class="section-label">Temps entre chaque contraction</div>
+  <div class="chart-card">
+    <div id="chart-empty" class="chart-empty">Enregistrez au moins 2 contractions pour voir le graphique.</div>
+    <div id="chart-container" style="display:none;">
+      <div class="chart-wrap" id="chart-wrap">
+        <div class="chart-scroll"><svg id="chart-svg"></svg></div>
+        <div class="chart-tooltip" id="chart-tooltip"></div>
+      </div>
+      <div class="chart-legend">Hauteur de la barre = temps écoulé depuis le début de la contraction précédente. Touchez une barre pour le détail.</div>
+    </div>
+  </div>
+</div>
+
+<!-- History -->
+<div class="section">
+  <div class="section-label">Journal</div>
+  <div class="card" id="history-list"></div>
+</div>
+
+<!-- Actions -->
+<div class="section">
+  <div class="actions-row">
+    <button class="btn-secondary" id="add-manual-btn">+ Ajouter manuellement</button>
+    <button class="btn-secondary danger" id="clear-all-btn">Tout effacer</button>
+  </div>
+</div>
+
+<div class="footnote">
+  Cette application est un outil de suivi personnel et ne remplace pas un avis médical.
+  En cas de doute ou de contractions rapprochées, contactez votre sage-femme ou votre maternité.
+</div>
+
+<div class="bottom-safe"></div>
+
+<!-- Manual add sheet -->
+<div class="sheet-backdrop" id="sheet-backdrop">
+  <div class="sheet">
+    <div class="sheet-title">Ajouter une contraction</div>
+    <div class="field-row">
+      <div class="field">
+        <label for="manual-start">Début</label>
+        <input type="time" id="manual-start" step="1">
+      </div>
+      <div class="field">
+        <label for="manual-end">Fin</label>
+        <input type="time" id="manual-end" step="1">
+      </div>
+    </div>
+    <div class="field" style="margin-bottom: 14px;">
+      <label>Intensité</label>
+      <div class="intensity-row" id="manual-intensity-row">
+        <button class="intensity-btn" data-level="legere">Légère</button>
+        <button class="intensity-btn" data-level="moderee">Modérée</button>
+        <button class="intensity-btn" data-level="forte">Forte</button>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-secondary" id="manual-cancel">Annuler</button>
+      <button class="btn-primary" id="manual-save">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'contractions_v1';
+  const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+  /** @type {{id:number, start:number, end:number|null, intensity:string|null}[]} */
+  let contractions = loadData();
+  let manualIntensity = null;
+  let pendingIntensityId = null;
+  let tickTimer = null;
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(contractions));
+    } catch (e) { /* storage unavailable — data stays in-memory for this session */ }
+  }
+
+  function sorted() {
+    return [...contractions].sort((a, b) => a.start - b.start);
+  }
+
+  // === TIME HELPERS ===
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function fmtClock(ms) {
+    const d = new Date(ms);
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function fmtDuration(seconds) {
+    seconds = Math.max(0, Math.round(seconds));
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${pad(m)}:${pad(s)}`;
+  }
+
+  // For intervals between contractions, which can span hours
+  function fmtInterval(seconds) {
+    seconds = Math.max(0, Math.round(seconds));
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    if (h > 0) return `${h} h ${pad(m)}`;
+    return fmtDuration(seconds);
+  }
+
+  function fmtRelative(ms) {
+    const totalMin = Math.round(ms / 60000);
+    if (totalMin < 1) return "à l'instant";
+    if (totalMin === 1) return 'il y a 1 min';
+    if (totalMin < 60) return `il y a ${totalMin} min`;
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return `il y a ${h} h ${m > 0 ? m + ' min' : ''}`.trim();
+  }
+
+  const INTENSITY_LABEL = { legere: 'Légère', moderee: 'Modérée', forte: 'Forte' };
+
+  // === HEADER DATE ===
+  function renderHeader() {
+    const now = new Date();
+    document.getElementById('today-label').textContent =
+      `${JOURS[now.getDay()]} ${now.getDate()} ${MOIS[now.getMonth()]}`;
+  }
+
+  // === TIMER ===
+  const timerBtn = document.getElementById('timer-btn');
+  const timerClock = document.getElementById('timer-clock');
+  const timerReadout = document.getElementById('timer-readout');
+  const timerSince = document.getElementById('timer-since');
+  const intensityPicker = document.getElementById('intensity-picker');
+  const intensityTitle = document.getElementById('intensity-title');
+
+  function activeContraction() {
+    const list = sorted();
+    const last = list[list.length - 1];
+    return last && last.end === null ? last : null;
+  }
+
+  function updateTimerDisplay() {
+    const active = activeContraction();
+    if (active) {
+      timerBtn.classList.add('active');
+      timerBtn.innerHTML = 'Terminer<br>la contraction';
+      timerReadout.textContent = 'Contraction en cours';
+      const elapsed = (Date.now() - active.start) / 1000;
+      timerClock.textContent = fmtDuration(elapsed);
+      timerSince.textContent = '';
+    } else {
+      timerBtn.classList.remove('active');
+      timerBtn.innerHTML = 'Démarrer<br>une contraction';
+      timerReadout.textContent = 'Prête à démarrer';
+      timerClock.textContent = '00:00';
+      const list = sorted();
+      if (list.length > 0) {
+        const lastStart = list[list.length - 1].start;
+        timerSince.textContent = `Dernière contraction ${fmtRelative(Date.now() - lastStart)}`;
+      } else {
+        timerSince.textContent = '';
+      }
+    }
+  }
+
+  function startTick() {
+    stopTick();
+    tickTimer = setInterval(() => {
+      if (activeContraction()) updateTimerDisplay();
+    }, 1000);
+  }
+  function stopTick() {
+    if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
+  }
+
+  timerBtn.addEventListener('click', () => {
+    const active = activeContraction();
+    if (active) {
+      active.end = Date.now();
+      saveData();
+      openIntensityPicker(active.id);
+      renderAll();
+    } else {
+      closeIntensityPicker();
+      contractions.push({ id: Date.now(), start: Date.now(), end: null, intensity: null });
+      saveData();
+      renderAll();
+    }
+  });
+
+  function openIntensityPicker(id) {
+    pendingIntensityId = id;
+    const c = contractions.find((x) => x.id === id);
+    const dur = c && c.end ? fmtDuration((c.end - c.start) / 1000) : '';
+    intensityTitle.textContent = `Contraction de ${dur} — quelle intensité ?`;
+    intensityPicker.classList.add('show');
+    intensityPicker.querySelectorAll('.intensity-btn').forEach((b) => b.classList.remove('picked'));
+  }
+  function closeIntensityPicker() {
+    pendingIntensityId = null;
+    intensityPicker.classList.remove('show');
+  }
+
+  intensityPicker.querySelectorAll('.intensity-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (pendingIntensityId == null) return;
+      const c = contractions.find((x) => x.id === pendingIntensityId);
+      if (c) { c.intensity = btn.dataset.level; saveData(); }
+      closeIntensityPicker();
+      renderAll();
+    });
+  });
+  document.getElementById('intensity-skip').addEventListener('click', () => {
+    closeIntensityPicker();
+    renderAll();
+  });
+
+  // === STATS ===
+  function computeIntervals(list) {
+    // returns array aligned with list[1..]: {contraction, intervalMs}
+    const out = [];
+    for (let i = 1; i < list.length; i++) {
+      out.push({ c: list[i], intervalMs: list[i].start - list[i - 1].start });
+    }
+    return out;
+  }
+
+  function renderStats() {
+    const list = sorted().filter((c) => c.end !== null);
+    const now = Date.now();
+
+    const lastHour = list.filter((c) => now - c.start <= 3600000);
+    document.getElementById('stat-count').textContent = lastHour.length;
+
+    const intervals = computeIntervals(sorted());
+    const recentIntervals = intervals.slice(-5);
+    if (recentIntervals.length > 0) {
+      const avgMs = recentIntervals.reduce((s, x) => s + x.intervalMs, 0) / recentIntervals.length;
+      document.getElementById('stat-interval').textContent = fmtInterval(avgMs / 1000);
+    } else {
+      document.getElementById('stat-interval').textContent = '—';
+    }
+
+    const recentDur = list.slice(-5);
+    if (recentDur.length > 0) {
+      const avgDur = recentDur.reduce((s, c) => s + (c.end - c.start), 0) / recentDur.length / 1000;
+      document.getElementById('stat-duration').textContent = fmtDuration(avgDur);
+    } else {
+      document.getElementById('stat-duration').textContent = '—';
+    }
+
+    renderAdvisory(list, intervals);
+  }
+
+  function renderAdvisory(list, intervals) {
+    const el = document.getElementById('advisory');
+    const now = Date.now();
+    const windowList = list.filter((c) => now - c.start <= 3600000);
+    const windowIntervals = intervals.filter((x) => now - x.c.start <= 3600000);
+
+    if (windowList.length >= 4 && windowIntervals.length >= 3) {
+      const avgIntervalMin = windowIntervals.reduce((s, x) => s + x.intervalMs, 0) / windowIntervals.length / 60000;
+      const avgDurSec = windowList.reduce((s, c) => s + (c.end - c.start), 0) / windowList.length / 1000;
+      if (avgIntervalMin <= 5 && avgDurSec >= 60) {
+        document.getElementById('advisory-text').textContent =
+          `Sur la dernière heure : intervalle moyen ${avgIntervalMin.toFixed(1)} min, durée moyenne ${fmtDuration(avgDurSec)}. Pensez à contacter votre sage-femme ou votre maternité.`;
+        el.classList.add('show');
+        return;
+      }
+    }
+    el.classList.remove('show');
+  }
+
+  // === CHART ===
+  function renderChart() {
+    const list = sorted().filter((c) => c.end !== null);
+    const intervals = computeIntervals(list).slice(-20); // last 20 intervals
+    const empty = document.getElementById('chart-empty');
+    const container = document.getElementById('chart-container');
+
+    if (intervals.length === 0) {
+      empty.style.display = 'block';
+      container.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    container.style.display = 'block';
+
+    const barW = 34, gap = 14, leftPad = 8, rightPad = 8;
+    const chartH = 150, topPad = 26, bottomPad = 30;
+    const n = intervals.length;
+    const width = Math.max(leftPad + rightPad + n * barW + (n - 1) * gap, 280);
+    const maxIntervalMs = Math.max(...intervals.map((x) => x.intervalMs), 60000);
+    const plotH = chartH - topPad - bottomPad;
+
+    const svg = document.getElementById('chart-svg');
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', chartH);
+    svg.setAttribute('viewBox', `0 0 ${width} ${chartH}`);
+    svg.innerHTML = '';
+
+    const ns = 'http://www.w3.org/2000/svg';
+    function el(tag, attrs) {
+      const e = document.createElementNS(ns, tag);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    // baseline
+    svg.appendChild(el('line', {
+      x1: 0, y1: chartH - bottomPad, x2: width, y2: chartH - bottomPad,
+      stroke: '#c3c2b7', 'stroke-width': 1
+    }));
+
+    const tooltip = document.getElementById('chart-tooltip');
+    const wrap = document.getElementById('chart-wrap');
+
+    intervals.forEach((item, i) => {
+      const x = leftPad + i * (barW + gap);
+      const h = Math.max(6, (item.intervalMs / maxIntervalMs) * plotH);
+      const y = chartH - bottomPad - h;
+
+      // invisible wider hit area for touch
+      const hit = el('rect', {
+        x: x - gap / 2, y: 0, width: barW + gap, height: chartH,
+        fill: 'transparent', class: 'bar-hit'
+      });
+
+      const bar = el('rect', {
+        x, y, width: barW, height: h, rx: 6, ry: 6, style: 'fill:var(--bar)'
+      });
+
+      const valueLabel = el('text', {
+        x: x + barW / 2, y: y - 8, 'text-anchor': 'middle',
+        'font-size': '11', 'font-weight': '700', fill: '#0b0b0b'
+      });
+      valueLabel.textContent = fmtInterval(item.intervalMs / 1000);
+
+      const timeLabel = el('text', {
+        x: x + barW / 2, y: chartH - 12, 'text-anchor': 'middle',
+        'font-size': '10.5', fill: '#898781'
+      });
+      timeLabel.textContent = fmtClock(item.c.start);
+
+      svg.appendChild(bar);
+      svg.appendChild(valueLabel);
+      svg.appendChild(timeLabel);
+      svg.appendChild(hit);
+
+      function showTip(evt) {
+        const rect = wrap.getBoundingClientRect();
+        const scrollEl = wrap.querySelector('.chart-scroll');
+        const scrollLeft = scrollEl ? scrollEl.scrollLeft : 0;
+        const tipX = x + barW / 2 - scrollLeft;
+        const tipY = y - 14;
+        tooltip.style.left = tipX + 'px';
+        tooltip.style.top = tipY + 'px';
+        tooltip.textContent = `${fmtClock(item.c.start)} · intervalle ${fmtInterval(item.intervalMs / 1000)}`;
+        tooltip.classList.add('show');
+      }
+      hit.addEventListener('mouseenter', showTip);
+      hit.addEventListener('mousemove', showTip);
+      hit.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+      hit.addEventListener('touchstart', (e) => { showTip(e); }, { passive: true });
+      hit.addEventListener('click', showTip);
+    });
+
+    document.addEventListener('click', function hideOnOutside(e) {
+      if (!wrap.contains(e.target)) tooltip.classList.remove('show');
+    });
+
+    // auto-scroll chart to the most recent bar
+    requestAnimationFrame(() => {
+      const scrollEl = document.querySelector('.chart-scroll');
+      if (scrollEl) scrollEl.scrollLeft = scrollEl.scrollWidth;
+    });
+  }
+
+  // === HISTORY LIST ===
+  function renderHistory() {
+    const list = sorted();
+    const container = document.getElementById('history-list');
+    container.innerHTML = '';
+
+    if (list.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'history-empty';
+      empty.textContent = 'Aucune contraction enregistrée pour le moment.';
+      container.appendChild(empty);
+      return;
+    }
+
+    const reversed = [...list].reverse();
+    reversed.forEach((c) => {
+      const idx = list.indexOf(c) + 1;
+      const row = document.createElement('div');
+      row.className = 'history-row';
+
+      const idxEl = document.createElement('div');
+      idxEl.className = 'hist-idx';
+      idxEl.textContent = idx;
+
+      const main = document.createElement('div');
+      main.className = 'hist-main';
+
+      const timeEl = document.createElement('div');
+      timeEl.className = 'hist-time';
+      timeEl.textContent = fmtClock(c.start);
+
+      const subEl = document.createElement('div');
+      subEl.className = 'hist-sub';
+      const parts = [];
+      if (c.end !== null) {
+        parts.push(`durée ${fmtDuration((c.end - c.start) / 1000)}`);
+      } else {
+        parts.push('en cours');
+      }
+      const pos = list.indexOf(c);
+      if (pos > 0) {
+        const intervalMs = c.start - list[pos - 1].start;
+        parts.push(`intervalle ${fmtInterval(intervalMs / 1000)}`);
+      }
+      subEl.textContent = parts.join(' · ');
+
+      main.appendChild(timeEl);
+      main.appendChild(subEl);
+
+      const badge = document.createElement('div');
+      const level = c.intensity || 'none';
+      badge.className = `hist-badge ${level}`;
+      badge.textContent = INTENSITY_LABEL[c.intensity] || 'Intensité';
+      badge.title = 'Toucher pour modifier';
+      badge.addEventListener('click', () => cycleIntensity(c.id));
+
+      const del = document.createElement('button');
+      del.className = 'hist-del';
+      del.textContent = '×';
+      del.addEventListener('click', () => deleteContraction(c.id));
+
+      row.appendChild(idxEl);
+      row.appendChild(main);
+      row.appendChild(badge);
+      row.appendChild(del);
+      container.appendChild(row);
+    });
+  }
+
+  const INTENSITY_CYCLE = [null, 'legere', 'moderee', 'forte'];
+  function cycleIntensity(id) {
+    const c = contractions.find((x) => x.id === id);
+    if (!c) return;
+    const idx = INTENSITY_CYCLE.indexOf(c.intensity);
+    c.intensity = INTENSITY_CYCLE[(idx + 1) % INTENSITY_CYCLE.length];
+    saveData();
+    renderAll();
+  }
+
+  function deleteContraction(id) {
+    if (!confirm('Supprimer cette contraction ?')) return;
+    contractions = contractions.filter((x) => x.id !== id);
+    saveData();
+    renderAll();
+  }
+
+  // === MANUAL ADD ===
+  const sheetBackdrop = document.getElementById('sheet-backdrop');
+  const manualStart = document.getElementById('manual-start');
+  const manualEnd = document.getElementById('manual-end');
+
+  document.getElementById('add-manual-btn').addEventListener('click', () => {
+    manualIntensity = null;
+    document.querySelectorAll('#manual-intensity-row .intensity-btn').forEach((b) => b.classList.remove('picked'));
+    const now = new Date();
+    manualStart.value = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    manualEnd.value = manualStart.value;
+    sheetBackdrop.classList.add('show');
+  });
+
+  document.getElementById('manual-cancel').addEventListener('click', () => {
+    sheetBackdrop.classList.remove('show');
+  });
+  sheetBackdrop.addEventListener('click', (e) => {
+    if (e.target === sheetBackdrop) sheetBackdrop.classList.remove('show');
+  });
+
+  document.querySelectorAll('#manual-intensity-row .intensity-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      manualIntensity = btn.dataset.level;
+      document.querySelectorAll('#manual-intensity-row .intensity-btn').forEach((b) => b.classList.remove('picked'));
+      btn.classList.add('picked');
+    });
+  });
+
+  function timeStringToTodayMs(str) {
+    if (!str) return null;
+    const parts = str.split(':').map(Number);
+    const now = new Date();
+    now.setHours(parts[0] || 0, parts[1] || 0, parts[2] || 0, 0);
+    return now.getTime();
+  }
+
+  document.getElementById('manual-save').addEventListener('click', () => {
+    const startMs = timeStringToTodayMs(manualStart.value);
+    const endMs = timeStringToTodayMs(manualEnd.value);
+    if (startMs === null || endMs === null) {
+      alert('Merci de renseigner une heure de début et de fin.');
+      return;
+    }
+    if (endMs <= startMs) {
+      alert("L'heure de fin doit être après l'heure de début.");
+      return;
+    }
+    contractions.push({ id: Date.now() + Math.random(), start: startMs, end: endMs, intensity: manualIntensity });
+    saveData();
+    sheetBackdrop.classList.remove('show');
+    renderAll();
+  });
+
+  // === CLEAR ALL ===
+  document.getElementById('clear-all-btn').addEventListener('click', () => {
+    if (contractions.length === 0) return;
+    if (!confirm('Effacer toutes les contractions enregistrées ? Cette action est irréversible.')) return;
+    contractions = [];
+    saveData();
+    renderAll();
+  });
+
+  // === RENDER ALL ===
+  function renderAll() {
+    updateTimerDisplay();
+    renderStats();
+    renderChart();
+    renderHistory();
+    if (activeContraction()) startTick(); else stopTick();
+  }
+
+  renderHeader();
+  renderAll();
+
+  // === SERVICE WORKER ===
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw-contractions.js').catch(() => {});
+    });
+  }
+})();
+</script>
+</body>
+</html>

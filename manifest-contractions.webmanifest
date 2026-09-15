@@ -1,0 +1,17 @@
+{
+  "name": "Suivi des contractions",
+  "short_name": "Contractions",
+  "description": "Chronomètre et journal des contractions pour suivre leur durée, leur fréquence et leur intensité.",
+  "start_url": "./contractions.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff5f7",
+  "theme_color": "#ff2d69",
+  "lang": "fr",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
