@@ -1,0 +1,396 @@
+<title>Calculateur de rendement</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  /* Layout: colonne unique — 3 formules en grille, puis le bilan CA → frais → net */
+  :root {
+    --bg: #0b0a09;
+    --surface: #151311;
+    --surface-2: #1d1a17;
+    --line: #2c2723;
+    --fg: #f4ece4;
+    --muted: #9c8f84;
+    --orange: #ff7a1a;
+    --orange-soft: #ff7a1a26;
+    --bank: #c9a27a;
+    --urssaf: #8a5a3a;
+    --good: #ffb066;
+    --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --body: "DM Sans", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--fg); }
+  body {
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.5;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 32px 56px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 28px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; }
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(26px, 5vw, 40px);
+    line-height: 1.05;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h1 span { color: var(--orange); }
+  .sub { color: var(--muted); margin: 6px 0 0; max-width: 52ch; }
+
+  .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px; gap: 2px; }
+  .seg button {
+    font: 500 13px var(--body);
+    color: var(--muted);
+    background: none;
+    border: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--orange); color: #140a02; }
+  .seg button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+  .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 820px) { .plans { grid-template-columns: 1fr; } }
+
+  .plan {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    display: grid;
+    gap: 16px;
+  }
+  .plan-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .plan h2 {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .plan .dur { font: 500 12px var(--mono); color: var(--muted); }
+
+  .members { display: flex; align-items: baseline; gap: 8px; }
+  .members output { font: 700 44px/1 var(--mono); color: var(--orange); font-variant-numeric: tabular-nums; }
+  .members span { color: var(--muted); font-size: 13px; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 28px;
+    background: transparent;
+    cursor: pointer;
+    --pct: 0%;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 99px;
+    background: linear-gradient(to right, var(--orange) var(--pct), var(--surface-2) var(--pct));
+    border: 1px solid var(--line);
+  }
+  input[type="range"]::-moz-range-track { height: 8px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); }
+  input[type="range"]::-moz-range-progress { height: 8px; border-radius: 99px; background: var(--orange); }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px; height: 24px; margin-top: -9px;
+    border-radius: 50%;
+    background: var(--fg);
+    border: 4px solid var(--orange);
+    box-shadow: 0 0 0 6px var(--orange-soft);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--fg);
+    border: 4px solid var(--orange);
+    box-shadow: 0 0 0 6px var(--orange-soft);
+  }
+  input[type="range"]:focus-visible { outline: 2px solid var(--orange); outline-offset: 4px; border-radius: 8px; }
+  .scale { display: flex; justify-content: space-between; font: 500 11px var(--mono); color: var(--muted); margin-top: -8px; }
+
+  .price label { display: block; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .price-field { display: flex; align-items: center; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 0 14px; }
+  .price-field:focus-within { border-color: var(--orange); }
+  .price-field input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    color: var(--fg);
+    font: 700 22px var(--mono);
+    padding: 10px 0;
+    outline: none;
+  }
+  .price-field span { font: 500 16px var(--mono); color: var(--muted); }
+  .price-field.bad { border-color: #e5484d; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 6px; min-height: 18px; }
+  .price-field.bad + .hint { color: #ff8a8d; }
+
+  .plan-total { border-top: 1px dashed var(--line); padding-top: 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .plan-total span { color: var(--muted); font-size: 13px; }
+  .plan-total strong { font: 700 18px var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* Bilan */
+  .bilan {
+    background: var(--surface);
+    border: 1px solid var(--orange);
+    border-radius: 18px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 28px;
+  }
+  @media (max-width: 820px) { .bilan { grid-template-columns: 1fr; padding: 20px; } }
+  .eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+  .net { font: 700 clamp(36px, 7vw, 56px)/1 var(--mono); color: var(--orange); font-variant-numeric: tabular-nums; margin: 0; overflow-wrap: anywhere; }
+  .net-note { color: var(--muted); margin: 8px 0 20px; font-size: 13px; }
+
+  .bar { display: flex; height: 16px; border-radius: 99px; overflow: hidden; background: var(--surface-2); }
+  .bar div { transition: width .25s ease; }
+  .bar .b-net { background: var(--orange); }
+  .bar .b-urssaf { background: var(--urssaf); }
+  .bar .b-bank { background: var(--bank); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+  .lines { display: grid; gap: 0; align-content: start; }
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .row:last-child { border-bottom: 0; }
+  .row .label { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .row .amt { font: 700 17px var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  .row.minus .amt { color: var(--muted); }
+  .row.total { border-top: 2px solid var(--orange); border-bottom: 0; margin-top: 4px; }
+  .row.total .label { font-weight: 700; }
+  .row.total .amt { color: var(--orange); font-size: 20px; }
+  .pct { display: inline-flex; align-items: center; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 2px 8px; }
+  .pct:focus-within { border-color: var(--orange); }
+  .pct input { width: 3.2ch; background: transparent; border: 0; color: var(--fg); font: 500 13px var(--mono); text-align: right; outline: none; padding: 2px 0; }
+  .pct span { font: 500 13px var(--mono); color: var(--muted); }
+
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 560px) { .stats { grid-template-columns: 1fr; } }
+  .stat { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .stat p { margin: 0; }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .stat .v { font: 700 20px var(--mono); font-variant-numeric: tabular-nums; margin-top: 4px; }
+
+  footer { color: var(--muted); font-size: 12px; max-width: 70ch; }
+  footer button { font: 500 12px var(--body); color: var(--orange); background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; margin-top: 8px; }
+
+  @media (prefers-reduced-motion: reduce) { .bar div { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Rendement <span>abonnements</span></h1>
+      <p class="sub">Glisse le nombre de membres, tape les prix, et lis directement ce qu'il te reste après frais bancaires et URSSAF.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Période de calcul">
+      <button type="button" data-mode="once" aria-pressed="true">Encaissement</button>
+      <button type="button" data-mode="month" aria-pressed="false">Par mois</button>
+      <button type="button" data-mode="year" aria-pressed="false">Sur 12 mois</button>
+    </div>
+  </header>
+
+  <section class="plans" id="plans"></section>
+
+  <section class="bilan" aria-live="polite">
+    <div>
+      <p class="eyebrow" id="netLabel">Net en poche</p>
+      <p class="net" id="net">0,00 €</p>
+      <p class="net-note" id="netNote"></p>
+      <div class="bar" aria-hidden="true">
+        <div class="b-net" id="barNet"></div>
+        <div class="b-urssaf" id="barUrssaf"></div>
+        <div class="b-bank" id="barBank"></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--orange)"></i>Net</span>
+        <span><i style="background:var(--urssaf)"></i>URSSAF</span>
+        <span><i style="background:var(--bank)"></i>Frais bancaires</span>
+      </div>
+    </div>
+    <div class="lines">
+      <div class="row">
+        <div class="label">Chiffre d'affaires</div>
+        <div class="amt" id="ca">0,00 €</div>
+      </div>
+      <div class="row minus">
+        <div class="label">− Frais bancaires
+          <span class="pct"><input id="bankPct" type="text" inputmode="decimal" value="5" aria-label="Pourcentage frais bancaires"><span>%</span></span>
+        </div>
+        <div class="amt" id="bank">0,00 €</div>
+      </div>
+      <div class="row minus">
+        <div class="label">− URSSAF
+          <span class="pct"><input id="urssafPct" type="text" inputmode="decimal" value="23" aria-label="Pourcentage URSSAF"><span>%</span></span>
+        </div>
+        <div class="amt" id="urssaf">0,00 €</div>
+      </div>
+      <div class="row total">
+        <div class="label">= Net</div>
+        <div class="amt" id="net2">0,00 €</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><p class="k">Membres au total</p><p class="v" id="sMembers">0</p></div>
+    <div class="stat"><p class="k">Net moyen par membre</p><p class="v" id="sPerMember">0,00 €</p></div>
+    <div class="stat"><p class="k">Net lissé par mois</p><p class="v" id="sMonthly">0,00 €</p></div>
+  </section>
+
+  <footer>
+    Les deux pourcentages sont calculés sur le chiffre d'affaires brut, comme en micro-entreprise.
+    « Par mois » répartit chaque abonnement sur sa durée (6 mois ÷ 6, 12 mois ÷ 12). « Sur 12 mois » suppose que chaque membre renouvelle sur l'année.
+    Tes réglages restent enregistrés dans ce navigateur.
+    <br><button type="button" id="reset">Revenir aux valeurs d'exemple</button>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const PLANS = [
+    { id: "m1",  name: "Mensuel",  months: 1,  dur: "1 mois" },
+    { id: "m6",  name: "6 mois",   months: 6,  dur: "paiement unique" },
+    { id: "m12", name: "12 mois",  months: 12, dur: "paiement unique" },
+  ];
+  const DEFAULTS = {
+    mode: "once",
+    bankPct: "5",
+    urssafPct: "23",
+    plans: { m1: { members: 40, price: "9,95" }, m6: { members: 25, price: "49,50" }, m12: { members: 15, price: "89,95" } },
+  };
+  const KEY = "rendement-abos-v1";
+
+  let state;
+  try { state = JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { state = null; }
+  if (!state || !state.plans) state = structuredClone(DEFAULTS);
+
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+  const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
+  const parseNum = (s) => {
+    const clean = String(s).trim().replace(/\s|€/g, "").replace(",", ".");
+    if (clean === "") return 0;
+    const n = Number(clean);
+    return Number.isFinite(n) && n >= 0 ? n : NaN;
+  };
+
+  // Facteur selon la période choisie
+  const factor = (months) => state.mode === "month" ? 1 / months : state.mode === "year" ? 12 / months : 1;
+  const totalLabel = { once: "Encaissé", month: "CA mensuel", year: "CA sur 12 mois" };
+
+  const plansEl = document.getElementById("plans");
+  plansEl.innerHTML = PLANS.map(p => `
+    <article class="plan">
+      <div class="plan-head"><h2>${p.name}</h2><span class="dur">${p.dur}</span></div>
+      <div>
+        <div class="members"><output id="${p.id}-out">0</output><span>membres</span></div>
+        <input type="range" id="${p.id}-range" min="0" max="200" step="1" aria-label="Nombre de membres, abonnement ${p.name}">
+        <div class="scale"><span>0</span><span>50</span><span>100</span><span>150</span><span>200</span></div>
+      </div>
+      <div class="price">
+        <label for="${p.id}-price">Prix de l'abonnement</label>
+        <div class="price-field" id="${p.id}-field">
+          <input id="${p.id}-price" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00">
+          <span>€</span>
+        </div>
+        <div class="hint" id="${p.id}-hint"></div>
+      </div>
+      <div class="plan-total"><span id="${p.id}-tlabel">Encaissé</span><strong id="${p.id}-total">0,00 €</strong></div>
+    </article>`).join("");
+
+  PLANS.forEach(p => {
+    const range = document.getElementById(p.id + "-range");
+    const price = document.getElementById(p.id + "-price");
+    range.value = state.plans[p.id].members;
+    price.value = state.plans[p.id].price;
+    range.addEventListener("input", () => { state.plans[p.id].members = Number(range.value); render(); });
+    price.addEventListener("input", () => { state.plans[p.id].price = price.value; render(); });
+  });
+
+  const bankIn = document.getElementById("bankPct");
+  const urssafIn = document.getElementById("urssafPct");
+  bankIn.value = state.bankPct; urssafIn.value = state.urssafPct;
+  bankIn.addEventListener("input", () => { state.bankPct = bankIn.value; render(); });
+  urssafIn.addEventListener("input", () => { state.urssafPct = urssafIn.value; render(); });
+
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { state.mode = b.dataset.mode; render(); }));
+
+  document.getElementById("reset").addEventListener("click", () => {
+    state = structuredClone(DEFAULTS);
+    PLANS.forEach(p => {
+      document.getElementById(p.id + "-range").value = state.plans[p.id].members;
+      document.getElementById(p.id + "-price").value = state.plans[p.id].price;
+    });
+    bankIn.value = state.bankPct; urssafIn.value = state.urssafPct;
+    render();
+  });
+
+  const set = (id, txt) => { document.getElementById(id).textContent = txt; };
+
+  function render() {
+    let ca = 0, caMonthly = 0, members = 0;
+    PLANS.forEach(p => {
+      const s = state.plans[p.id];
+      const range = document.getElementById(p.id + "-range");
+      range.style.setProperty("--pct", (s.members / 200 * 100) + "%");
+      set(p.id + "-out", s.members);
+      const pr = parseNum(s.price);
+      const field = document.getElementById(p.id + "-field");
+      field.classList.toggle("bad", Number.isNaN(pr));
+      set(p.id + "-hint", Number.isNaN(pr) ? "Écris un prix comme 9,95 ou 49,50" :
+        p.months > 1 && pr > 0 ? `soit ${eur.format(pr / p.months)} / mois` : "");
+      const price = Number.isNaN(pr) ? 0 : pr;
+      const t = s.members * price * factor(p.months);
+      set(p.id + "-tlabel", totalLabel[state.mode]);
+      set(p.id + "-total", eur.format(t));
+      ca += t;
+      caMonthly += s.members * price / p.months;
+      members += s.members;
+    });
+
+    const bp = parseNum(state.bankPct), up = parseNum(state.urssafPct);
+    const bankRate = (Number.isNaN(bp) ? 0 : bp) / 100;
+    const urssafRate = (Number.isNaN(up) ? 0 : up) / 100;
+    const bank = ca * bankRate, urssaf = ca * urssafRate, net = ca - bank - urssaf;
+    const netMonthly = caMonthly * (1 - bankRate - urssafRate);
+
+    set("ca", eur.format(ca));
+    set("bank", "− " + eur.format(bank));
+    set("urssaf", "− " + eur.format(urssaf));
+    set("net", eur.format(net));
+    set("net2", eur.format(net));
+    set("netLabel", { once: "Net en poche à l'encaissement", month: "Net en poche par mois", year: "Net en poche sur 12 mois" }[state.mode]);
+    const keep = Math.max(0, 100 - (bankRate + urssafRate) * 100);
+    set("netNote", `Tu gardes ${keep.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} % du chiffre d'affaires.`);
+
+    const w = (v) => ca > 0 ? Math.max(0, v / ca * 100) + "%" : "0%";
+    document.getElementById("barNet").style.width = w(net);
+    document.getElementById("barUrssaf").style.width = w(urssaf);
+    document.getElementById("barBank").style.width = w(bank);
+
+    set("sMembers", members);
+    set("sPerMember", eur.format(members ? net / members : 0));
+    set("sMonthly", eur.format(netMonthly));
+
+    document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)));
+    save();
+  }
+
+  render();
+})();
+</script>
