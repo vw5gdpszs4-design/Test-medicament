@@ -259,10 +259,12 @@
 
       <div class="s-h">Horloge</div>
       <div class="s-group">
+        <div class="s-row"><span>Afficher la coupe</span><select id="where"><option value="both">Barre d'état + date</option><option value="sb">Barre d'état</option><option value="date">Date de la note</option></select></div>
         <div class="s-row"><span>Format</span><select id="fmt"><option value="24">24 h (09:41)</option><option value="12">12 h (9:41)</option></select></div>
         <div class="s-row"><span>Minutes forcées pendant</span><span><input id="hold" type="number" min="1" max="60"> min</span></div>
         <div class="s-row"><span>Batterie affichée</span><span><input id="bat" type="number" min="1" max="100"> %</span></div>
       </div>
+      <div class="s-foot" id="diag"></div>
       <div class="s-foot">Après la saisie (1,2 s sans frapper ou en touchant « OK »), les minutes de l'heure affichent le numéro de la carte sur laquelle couper. Elles redeviennent normales au bout du délai ci-dessus ou en créant une nouvelle note.</div>
 
       <div class="s-h">&nbsp;</div>
@@ -386,7 +388,7 @@
   };
 
   const settings = Object.assign({
-    preset: 'mnemonica', custom: PRESETS.mnemonica, cut: 'bottom', fmt: '24', hold: 3, bat: 78
+    preset: 'mnemonica', custom: PRESETS.mnemonica, cut: 'bottom', fmt: '24', hold: 3, bat: 78, where: 'both'
   }, store.get('cm.settings', {}));
   const state = { stack: [], forced: null, forcedUntil: 0 };
 
@@ -435,10 +437,11 @@
     const d = new Date();
     if (state.forced !== null && Date.now() > state.forcedUntil) state.forced = null;
     let h = d.getHours();
-    const mins = state.forced !== null ? state.forced : d.getMinutes();
     let hs;
     if (settings.fmt === '12') { h = h % 12 || 12; hs = String(h); } else hs = pad(h);
-    $('sbTime').textContent = hs + ':' + pad(mins);
+    const forced = state.forced !== null;
+    $('sbTime').textContent = hs + ':' + pad(forced && settings.where !== 'date' ? state.forced : d.getMinutes());
+    renderDate();
     $('batFill').setAttribute('width', Math.max(1.5, 20 * settings.bat / 100).toFixed(1));
   }
   function force(mins) {
@@ -502,7 +505,12 @@
 
   function fullDate(t) {
     const d = new Date(t);
-    return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} à ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    // Minutes de la date de la note = carte sur laquelle couper (si activé)
+    const m = state.forced !== null && settings.where !== 'sb' ? state.forced : d.getMinutes();
+    return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} à ${pad(d.getHours())}:${pad(m)}`;
+  }
+  function renderDate() {
+    if (current) $('noteDate').textContent = fullDate(current.t);
   }
   function getText() { return noteEl.innerText.replace(/ /g, ' ').replace(/\n$/, ''); }
   function setText(t) {
@@ -589,6 +597,10 @@
       : stackToText(parseStack(PRESETS[settings.preset]).ids);
     $('stackText').readOnly = settings.preset !== 'custom';
     $('fmt').value = settings.fmt;
+    $('where').value = settings.where;
+    $('diag').textContent = 'Diagnostic : ' + (navigator.standalone || matchMedia('(display-mode: standalone)').matches ? 'lancée depuis l’écran d’accueil' : 'ouverte dans Safari (pas en plein écran)')
+      + ' · marge haute ' + getComputedStyle(document.documentElement).getPropertyValue('--sb-h').trim()
+      + ' · ' + navigator.userAgent.replace(/^.*?(OS [\d_]+).*$/, '$1');
     $('hold').value = settings.hold;
     $('bat').value = settings.bat;
     document.querySelectorAll('[data-cut]').forEach(el => el.classList.toggle('on', el.dataset.cut === settings.cut));
@@ -642,6 +654,7 @@
   document.querySelectorAll('[data-cut]').forEach(el => el.onclick = () => {
     settings.cut = el.dataset.cut; persist(); fillSettings();
   });
+  $('where').onchange = e => { settings.where = e.target.value; persist(); renderClock(); };
   $('fmt').onchange = e => { settings.fmt = e.target.value; persist(); renderClock(); };
   $('hold').onchange = e => { settings.hold = Math.max(1, Math.min(60, +e.target.value || 3)); persist(); };
   $('bat').onchange = e => { settings.bat = Math.max(1, Math.min(100, +e.target.value || 78)); persist(); renderClock(); };
