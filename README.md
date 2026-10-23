@@ -12,6 +12,7 @@
    L'heure réelle revient après 3 min (réglable) ou à la création d'une nouvelle note.
 
 **Réglages secrets** : appui long (~1 s) sur le grand titre « Notes » de la liste.
+Langue de l'app : français, anglais ou espagnol (la carte peut être écrite dans l'une des trois langues : « 7 de cœur », « seven of hearts », « siete de corazones », « 7♥ »).
 Choix de l'ordre (Mnemonica par défaut, Aronson, jeu neuf, ou ordre personnalisé), convention de coupe,
 durée des minutes forcées, et un simulateur pour répéter.
 

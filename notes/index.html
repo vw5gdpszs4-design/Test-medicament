@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Notes">
+<meta name="apple-mobile-web-app-title" content="Notes" id="appTitle">
 <meta name="theme-color" content="#ffffff">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="icon.png">
@@ -140,16 +140,16 @@
   <!-- Liste des notes -->
   <section class="screen" id="list">
     <div class="nav">
-      <button class="back"><svg width="12" height="21" viewBox="0 0 12 21"><path d="M10.5 1.5 1.8 10.5l8.7 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Dossiers</button>
+      <button class="back"><svg width="12" height="21" viewBox="0 0 12 21"><path d="M10.5 1.5 1.8 10.5l8.7 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="folders">Dossiers</span></button>
       <div class="actions">
         <button aria-label="Plus"><svg width="25" height="25" viewBox="0 0 25 25"><circle cx="12.5" cy="12.5" r="11.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="7.6" cy="12.5" r="1.45" fill="currentColor"/><circle cx="12.5" cy="12.5" r="1.45" fill="currentColor"/><circle cx="17.4" cy="12.5" r="1.45" fill="currentColor"/></svg></button>
       </div>
     </div>
     <div class="scroll">
-      <div class="big-title" id="bigTitle">Notes</div>
+      <div class="big-title" id="bigTitle" data-i18n="notes">Notes</div>
       <div class="search">
         <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="6.6" cy="6.6" r="5.3" fill="none" stroke="#8a8a8e" stroke-width="1.8"/><path d="m10.6 10.6 4.2 4.2" stroke="#8a8a8e" stroke-width="1.9" stroke-linecap="round"/></svg>
-        <span>Rechercher</span>
+        <span data-i18n="search">Rechercher</span>
         <svg width="12" height="18" viewBox="0 0 12 18"><rect x="3" y="0.8" width="6" height="10.5" rx="3" fill="#8a8a8e"/><path d="M1 8.2a5 5 0 0 0 10 0M6 13.3v3.5" fill="none" stroke="#8a8a8e" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
       <div id="notesList"></div>
@@ -164,11 +164,11 @@
   <!-- Éditeur de note -->
   <section class="screen" id="editor">
     <div class="nav">
-      <button class="back" id="backBtn"><svg width="12" height="21" viewBox="0 0 12 21"><path d="M10.5 1.5 1.8 10.5l8.7 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Notes</button>
+      <button class="back" id="backBtn"><svg width="12" height="21" viewBox="0 0 12 21"><path d="M10.5 1.5 1.8 10.5l8.7 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="notes">Notes</span></button>
       <div class="actions">
         <button aria-label="Partager"><svg width="20" height="26" viewBox="0 0 20 26"><path d="M10 1.5v15M5.2 6 10 1.3 14.8 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 10H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         <button class="more" id="moreBtn" aria-label="Plus"><svg width="25" height="25" viewBox="0 0 25 25"><circle cx="12.5" cy="12.5" r="11.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="7.6" cy="12.5" r="1.45" fill="currentColor"/><circle cx="12.5" cy="12.5" r="1.45" fill="currentColor"/><circle cx="17.4" cy="12.5" r="1.45" fill="currentColor"/></svg></button>
-        <button class="ok" id="okBtn">OK</button>
+        <button class="ok" id="okBtn" data-i18n="done">OK</button>
       </div>
     </div>
     <div class="date" id="noteDate"></div>
@@ -185,49 +185,60 @@
   <section id="settings">
     <div class="nav" style="padding:0 16px">
       <span style="width:60px"></span>
-      <span class="ttl">Réglages</span>
-      <button id="closeSettings" style="font-weight:600">OK</button>
+      <span class="ttl" data-i18n="settings">Réglages</span>
+      <button id="closeSettings" style="font-weight:600" data-i18n="done">OK</button>
     </div>
     <div class="scroll">
-      <div class="s-h">Ordre du jeu</div>
+      <div class="s-h" data-i18n="language">Langue</div>
       <div class="s-group">
-        <div class="s-row"><span>Préréglage</span>
+        <div class="s-row"><span>🌐</span>
+          <select id="lang">
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="s-h" data-i18n="stackH">Ordre du jeu</div>
+      <div class="s-group">
+        <div class="s-row"><span data-i18n="preset">Préréglage</span>
           <select id="preset">
             <option value="mnemonica">Mnemonica</option>
             <option value="aronson">Aronson</option>
-            <option value="newdeck">Jeu neuf</option>
-            <option value="custom">Personnalisé</option>
+            <option value="newdeck" data-i18n="newdeck">Jeu neuf</option>
+            <option value="custom" data-i18n="custom">Personnalisé</option>
           </select>
         </div>
         <textarea id="stackText" spellcheck="false" autocapitalize="characters"></textarea>
       </div>
       <div class="s-foot" id="stackMsg"></div>
-      <div class="s-foot">Une carte par ligne, du dessus (n°1) vers le dessous. Formats acceptés : « 4T », « RK », « 10P », « As de cœur », « 7♥ »… (C = cœur, K = carreau, T = trèfle, P = pique ; A, V, D, R).</div>
+      <div class="s-foot" data-i18n="stackHelp"></div>
 
-      <div class="s-h">Coupe</div>
+      <div class="s-h" data-i18n="cutH">Coupe</div>
       <div class="s-group">
-        <div class="s-row radio" data-cut="bottom"><span class="lbl">La carte coupée passe dessous<small>On coupe le paquet jusqu'à cette carte incluse et on le met sous le jeu.</small></span><span class="chk">✓</span></div>
-        <div class="s-row radio" data-cut="top"><span class="lbl">La carte coupée passe dessus<small>Cette carte devient la 1ʳᵉ carte du jeu.</small></span><span class="chk">✓</span></div>
+        <div class="s-row radio" data-cut="bottom"><span class="lbl"><span data-i18n="cutBottom"></span><small data-i18n="cutBottomSub"></small></span><span class="chk">✓</span></div>
+        <div class="s-row radio" data-cut="top"><span class="lbl"><span data-i18n="cutTop"></span><small data-i18n="cutTopSub"></small></span><span class="chk">✓</span></div>
       </div>
 
-      <div class="s-h">Simulateur</div>
+      <div class="s-h" data-i18n="simH">Simulateur</div>
       <div class="s-group">
         <div class="sim"><input id="simCard" placeholder="7 de cœur"><input id="simPos" placeholder="14" inputmode="numeric"></div>
         <div id="simOut">Entrez une carte et une position.</div>
       </div>
 
-      <div class="s-h">Heure de la note</div>
+      <div class="s-h" data-i18n="timeH">Heure de la note</div>
       <div class="s-group">
-        <div class="s-row"><span>Minutes forcées pendant</span><span><input id="hold" type="number" min="1" max="60"> min</span></div>
+        <div class="s-row"><span data-i18n="hold">Minutes forcées pendant</span><span><input id="hold" type="number" min="1" max="60"> min</span></div>
       </div>
-      <div class="s-foot">Après la saisie (1,2 s sans frapper ou en touchant « OK »), les minutes de la date affichée en haut de la note indiquent le numéro de la carte sur laquelle couper. Elles redeviennent normales au bout du délai ci-dessus ou en créant une nouvelle note.</div>
+      <div class="s-foot" data-i18n="timeHelp"></div>
 
       <div class="s-h">&nbsp;</div>
       <div class="s-group">
-        <button class="s-btn" id="resetClock">Remettre l'heure réelle maintenant</button>
+        <button class="s-btn" id="resetClock" data-i18n="resetClock"></button>
       </div>
       <div class="s-group" style="margin-top:16px">
-        <button class="s-btn danger" id="wipe">Effacer toutes les notes</button>
+        <button class="s-btn danger" id="wipe" data-i18n="wipe"></button>
       </div>
       <div style="height:60px"></div>
     </div>
@@ -238,14 +249,98 @@
 (() => {
   'use strict';
 
-  /* ================== Cartes ================== */
-  const SUITS = { C: '♥', K: '♦', T: '♣', P: '♠' };
-  const VALS = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'V', 'D', 'R'];
-  const VAL_WORDS = {
-    as: 1, a: 1, un: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7, huit: 8, neuf: 9, dix: 10,
-    valet: 11, v: 11, j: 11, onze: 11, dame: 12, d: 12, q: 12, douze: 12, roi: 13, r: 13, k: 13, treize: 13
+  /* ================== Langues ================== */
+  const I18N = {
+    fr: {
+      folders: 'Dossiers', notes: 'Notes', search: 'Rechercher', done: 'OK', settings: 'Réglages', language: 'Langue',
+      today: 'Aujourd’hui', yesterday: 'Hier', prev7: '7 jours précédents', prev30: '30 jours précédents',
+      months: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
+      days: ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'],
+      fullDate: (d, month, time) => `${d.getDate()} ${month} ${d.getFullYear()} à ${time}`,
+      count: n => n + (n > 1 ? ' notes' : ' note'),
+      newNote: 'Nouvelle note', noText: 'Aucun texte supplémentaire',
+      confirmDelete: 'Supprimer cette note ?', confirmWipe: 'Effacer toutes les notes ?',
+      seed: ['Courses\nLait\nPain\nTomates\nCafé', 'Idées cadeaux\nLivre de cuisine pour maman\nCasque vélo', 'Code portail\n4589B'],
+      stackH: 'Ordre du jeu', preset: 'Préréglage', newdeck: 'Jeu neuf', custom: 'Personnalisé',
+      stackHelp: 'Une carte par ligne, du dessus (n°1) vers le dessous. Formats acceptés : « 4♣ », « 4T », « RK », « 10P », « As de cœur »… (C = cœur, K = carreau, T = trèfle, P = pique ; A, V, D, R). Choisissez « Personnalisé » pour modifier.',
+      unreadable: 'illisible :', dups: 'en double :', cardCount: n => n + ' cartes au lieu de 52', stackOk: '52 cartes, toutes différentes.',
+      cutH: 'Coupe',
+      cutBottom: 'La carte coupée passe dessous', cutBottomSub: 'On coupe le paquet jusqu’à cette carte incluse et on le met sous le jeu.',
+      cutTop: 'La carte coupée passe dessus', cutTopSub: 'Cette carte devient la 1ʳᵉ carte du jeu.',
+      simH: 'Simulateur', simPh: '7 de cœur', simEmpty: 'Entrez une carte et une position.', simBad: 'Carte ou position non reconnue.',
+      simOut: (c, from, to, cut, mm) => `${c} est n°${from} → doit aller en ${to}<br>Couper sur la carte <b>n°${cut}</b> (minutes « :${mm} »)`,
+      timeH: 'Heure de la note', hold: 'Minutes forcées pendant',
+      timeHelp: 'Après la saisie (1,2 s sans frapper ou en touchant « OK »), les minutes de la date affichée en haut de la note indiquent le numéro de la carte sur laquelle couper. Elles redeviennent normales au bout du délai ci-dessus ou en créant une nouvelle note.',
+      resetClock: 'Remettre l’heure réelle maintenant', wipe: 'Effacer toutes les notes'
+    },
+    en: {
+      folders: 'Folders', notes: 'Notes', search: 'Search', done: 'Done', settings: 'Settings', language: 'Language',
+      today: 'Today', yesterday: 'Yesterday', prev7: 'Previous 7 Days', prev30: 'Previous 30 Days',
+      months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      fullDate: (d, month, time) => `${month} ${d.getDate()}, ${d.getFullYear()} at ${time}`,
+      count: n => n + (n === 1 ? ' Note' : ' Notes'),
+      newNote: 'New Note', noText: 'No additional text',
+      confirmDelete: 'Delete this note?', confirmWipe: 'Delete all notes?',
+      seed: ['Groceries\nMilk\nBread\nTomatoes\nCoffee', 'Gift ideas\nCookbook for mom\nBike helmet', 'Gate code\n4589B'],
+      stackH: 'Deck order', preset: 'Preset', newdeck: 'New deck order', custom: 'Custom',
+      stackHelp: 'One card per line, from the top (no. 1) to the bottom. Accepted: “4♣”, “4C”, “KD”, “10S”, “Ace of hearts”… (H = hearts, D = diamonds, C = clubs, S = spades; A, J, Q, K). Choose “Custom” to edit.',
+      unreadable: 'unreadable:', dups: 'duplicates:', cardCount: n => n + ' cards instead of 52', stackOk: '52 cards, all different.',
+      cutH: 'Cut',
+      cutBottom: 'The cut card goes to the bottom', cutBottomSub: 'Cut the packet down to this card (included) and place it under the deck.',
+      cutTop: 'The cut card goes to the top', cutTopSub: 'This card becomes the top card of the deck.',
+      simH: 'Simulator', simPh: '7 of hearts', simEmpty: 'Enter a card and a position.', simBad: 'Card or position not recognized.',
+      simOut: (c, from, to, cut, mm) => `${c} is no. ${from} → must go to ${to}<br>Cut at card <b>no. ${cut}</b> (minutes “:${mm}”)`,
+      timeH: 'Note time', hold: 'Keep forced minutes for',
+      timeHelp: 'After typing (1.2 s without typing or tapping “Done”), the minutes of the date shown at the top of the note give the number of the card to cut at. They return to normal after the delay above or when you create a new note.',
+      resetClock: 'Restore real time now', wipe: 'Delete all notes'
+    },
+    es: {
+      folders: 'Carpetas', notes: 'Notas', search: 'Buscar', done: 'OK', settings: 'Ajustes', language: 'Idioma',
+      today: 'Hoy', yesterday: 'Ayer', prev7: '7 días anteriores', prev30: '30 días anteriores',
+      months: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+      days: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+      fullDate: (d, month, time) => `${d.getDate()} de ${month} de ${d.getFullYear()}, ${time}`,
+      count: n => n + (n === 1 ? ' nota' : ' notas'),
+      newNote: 'Nota nueva', noText: 'Sin texto adicional',
+      confirmDelete: '¿Eliminar esta nota?', confirmWipe: '¿Eliminar todas las notas?',
+      seed: ['Compras\nLeche\nPan\nTomates\nCafé', 'Ideas de regalo\nLibro de cocina para mamá\nCasco de bici', 'Código del portal\n4589B'],
+      stackH: 'Orden de la baraja', preset: 'Preajuste', newdeck: 'Baraja nueva', custom: 'Personalizado',
+      stackHelp: 'Una carta por línea, de arriba (n.º 1) hacia abajo. Formatos: «4♣», «4T», «KD», «10P», «As de corazones»… (C = corazones, D = diamantes, T = tréboles, P = picas; A, J, Q, K). Elija «Personalizado» para editar.',
+      unreadable: 'ilegible:', dups: 'repetidas:', cardCount: n => n + ' cartas en lugar de 52', stackOk: '52 cartas, todas distintas.',
+      cutH: 'Corte',
+      cutBottom: 'La carta cortada pasa abajo', cutBottomSub: 'Se corta el paquete hasta esta carta incluida y se pone debajo de la baraja.',
+      cutTop: 'La carta cortada pasa arriba', cutTopSub: 'Esta carta pasa a ser la primera de la baraja.',
+      simH: 'Simulador', simPh: '7 de corazones', simEmpty: 'Introduzca una carta y una posición.', simBad: 'Carta o posición no reconocida.',
+      simOut: (c, from, to, cut, mm) => `${c} es la n.º ${from} → debe ir a la ${to}<br>Cortar en la carta <b>n.º ${cut}</b> (minutos «:${mm}»)`,
+      timeH: 'Hora de la nota', hold: 'Mantener minutos forzados',
+      timeHelp: 'Tras escribir (1,2 s sin teclear o al tocar «OK»), los minutos de la fecha mostrada arriba de la nota indican el número de la carta en la que cortar. Vuelven a la normalidad tras el plazo indicado o al crear una nota nueva.',
+      resetClock: 'Volver a la hora real ahora', wipe: 'Eliminar todas las notas'
+    }
   };
-  const SUIT_WORDS = { coeur: 'C', carreau: 'K', trefle: 'T', pique: 'P' };
+
+  /* ================== Cartes ================== */
+  // Identifiant interne d'une carte : valeur (1..13) + couleur (C cœur, K carreau, T trèfle, P pique)
+  const SUITS = { C: '♥', K: '♦', T: '♣', P: '♠' };
+  const VALS = {
+    fr: ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'V', 'D', 'R'],
+    en: ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'],
+    es: ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+  };
+  // Valeurs reconnues dans les notes, quelle que soit la langue choisie (français, anglais, espagnol)
+  const VAL_WORDS = {
+    as: 1, ace: 1, a: 1, un: 1, one: 1, uno: 1,
+    deux: 2, two: 2, dos: 2, trois: 3, three: 3, tres: 3, quatre: 4, four: 4, cuatro: 4,
+    cinq: 5, five: 5, cinco: 5, six: 6, seis: 6, sept: 7, seven: 7, siete: 7, huit: 8, eight: 8, ocho: 8,
+    neuf: 9, nine: 9, nueve: 9, dix: 10, ten: 10, diez: 10,
+    valet: 11, jack: 11, jota: 11, sota: 11, onze: 11, eleven: 11, once: 11, v: 11, j: 11,
+    dame: 12, queen: 12, reina: 12, dama: 12, douze: 12, twelve: 12, doce: 12, d: 12, q: 12,
+    roi: 13, king: 13, rey: 13, treize: 13, thirteen: 13, trece: 13, r: 13, k: 13
+  };
+  const SUIT_WORDS = {
+    coeur: 'C', heart: 'C', corazon: 'C', carreau: 'K', diamond: 'K', diamante: 'K',
+    trefle: 'T', club: 'T', trebol: 'T', pique: 'P', spade: 'P', pica: 'P'
+  };
 
   const PRESETS = {
     mnemonica: '4T 2C 7K 3T 4C 6K AP 5C 9P 2P DC 3K DT 8C 6P 5P 9C RT 2K VC 3P 8P 6C 10T 5K RK 2T 3C 8K 5T RP VK 8T 10P RC VT 7P 10C AK 4P 7C 4K AT 9T VP DK 7T DP 10K 6T AC 9K',
@@ -265,10 +360,16 @@
       .replace(/️/g, '');
   }
 
-  // Carte écrite en toutes lettres dans un texte libre : « 7 de cœur », « dame de pique », « As♠ »…
-  const FREE_RE = /(?:^|[^a-z0-9])(as|roi|dame|valet|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|un|1[0-3]|[1-9]|[arkdqvj])\s*(?:de\s+|d\s*'\s*|du\s+)?(coeur|carreau|trefle|pique)(?:s|x)?(?![a-z])/;
-  // Code court utilisé dans les réglages : « 4T », « RK », « 10P »
-  const CODE_RE = /^(1[0-3]|[1-9]|a|v|d|r)([ckpt])$/;
+  // Carte écrite en toutes lettres : « 7 de cœur », « queen of spades », « rey de picas », « As♠ »…
+  const VAL_ALT = Object.keys(VAL_WORDS).filter(k => k.length > 1).sort((a, b) => b.length - a.length).join('|');
+  const FREE_RE = new RegExp('(?:^|[^a-z0-9])(' + VAL_ALT + '|1[0-3]|[1-9]|[arkdqvj])\\s*(?:de\\s+|d\\s*\'\\s*|du\\s+|of\\s+|of\\s+the\\s+)?(' +
+    Object.keys(SUIT_WORDS).join('|') + ')(?:s|x|es)?(?![a-z])');
+  // Codes courts des réglages, propres à chaque langue : « RK » (fr), « KD » (en, es)…
+  const CODES = {
+    fr: { re: /^(1[0-3]|[1-9]|a|v|d|r)([ckpt])$/, suit: { c: 'C', k: 'K', t: 'T', p: 'P' } },
+    en: { re: /^(1[0-3]|[1-9]|a|j|q|k)([hdcs])$/, suit: { h: 'C', d: 'K', c: 'T', s: 'P' } },
+    es: { re: /^(1[0-3]|[1-9]|a|j|q|k)([cdtp])$/, suit: { c: 'C', d: 'K', t: 'T', p: 'P' } }
+  };
 
   function valueOf(tok) {
     return /^\d+$/.test(tok) ? parseInt(tok, 10) : VAL_WORDS[tok];
@@ -283,16 +384,18 @@
     return { id: v + SUIT_WORDS[m[2]], end: m.index + m[0].length, norm: n };
   }
 
-  function parseToken(tok) {
+  function parseToken(tok, lang) {
     const n = normalize(tok).trim();
     if (!n) return null;
-    const c = CODE_RE.exec(n.replace(/\s+/g, ''));
-    if (c) { const v = valueOf(c[1]); return v + c[2].toUpperCase(); }
+    const code = CODES[lang];
+    const c = code.re.exec(n.replace(/\s+/g, ''));
+    if (c) return valueOf(c[1]) + code.suit[c[2]];
     const f = findCard(tok);
     return f ? f.id : null;
   }
 
-  function parseStack(text) {
+  function parseStack(text, lang) {
+    const CODE_RE = CODES[lang].re;
     const toks = text.split(/[\n,;]+|\s{2,}/).flatMap(line => {
       const l = line.trim();
       if (!l) return [];
@@ -303,14 +406,13 @@
       return [l.replace(/^\d+[.)]\s*/, '')];
     });
     const ids = [], errors = [];
-    toks.forEach(t => { const id = parseToken(t); if (id) ids.push(id); else errors.push(t); });
+    toks.forEach(t => { const id = parseToken(t, lang); if (id) ids.push(id); else errors.push(t); });
     const seen = new Set(), dups = [];
     ids.forEach(id => { if (seen.has(id)) dups.push(id); seen.add(id); });
     return { ids, errors, dups };
   }
 
-  function label(id) { const v = parseInt(id, 10); return VALS[v] + SUITS[id.slice(-1)]; }
-  function code(id) { const v = parseInt(id, 10); return VALS[v] + id.slice(-1); }
+  function label(id) { return VALS[settings.lang][parseInt(id, 10)] + SUITS[id.slice(-1)]; }
 
   /* Numéro de la carte sur laquelle couper.
      p = position actuelle (1..n), t = position voulue (1..n).
@@ -342,25 +444,30 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   };
 
+  const presetIds = k => parseStack(PRESETS[k], 'fr').ids;
+  const navLang = (navigator.language || 'en').slice(0, 2);
   const settings = Object.assign({
-    preset: 'mnemonica', custom: PRESETS.mnemonica, cut: 'bottom', hold: 3
+    lang: I18N[navLang] ? navLang : 'en', preset: 'mnemonica', customIds: null, cut: 'bottom', hold: 3
   }, store.get('cm.settings', {}));
+  if (!I18N[settings.lang]) settings.lang = 'en';
+  // anciens réglages : ordre personnalisé saisi en texte (codes français)
+  if (!settings.customIds && typeof settings.custom === 'string') {
+    const r = parseStack(settings.custom, 'fr');
+    if (r.ids.length === 52 && !r.dups.length) settings.customIds = r.ids;
+    delete settings.custom;
+  }
   const state = { stack: [], forced: null, forcedUntil: 0 };
+  const t = (k, ...a) => { const v = I18N[settings.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 
   function applyStack() {
-    const src = settings.preset === 'custom' ? settings.custom : PRESETS[settings.preset];
-    state.stack = parseStack(src).ids;
+    state.stack = settings.preset === 'custom' && settings.customIds ? settings.customIds.slice() : presetIds(settings.preset === 'custom' ? 'mnemonica' : settings.preset);
   }
   applyStack();
 
   let notes = store.get('cm.notes', null);
   if (!notes) {
     const now = Date.now();
-    notes = [
-      { id: 'n1', text: 'Courses\nLait\nPain\nTomates\nCafé', t: now - 3 * 3600e3 },
-      { id: 'n2', text: 'Idées cadeaux\nLivre de cuisine pour maman\nCasque vélo', t: now - 2 * 86400e3 },
-      { id: 'n3', text: 'Code portail\n4589B', t: now - 12 * 86400e3 }
-    ];
+    notes = t('seed').map((text, i) => ({ id: 'n' + (i + 1), text, t: now - [3 * 3600e3, 2 * 86400e3, 12 * 86400e3][i] }));
     store.set('cm.notes', notes);
   }
   const saveNotes = () => store.set('cm.notes', notes);
@@ -382,26 +489,29 @@
   function unforce() { state.forced = null; renderClock(); }
 
   /* ================== Liste ================== */
-  const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  const DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
-  function sectionOf(t) {
+  function sectionOf(ts) {
     const today = startOfDay(new Date());
-    if (t >= today) return 'Aujourd’hui';
-    if (t >= today - 86400e3) return 'Hier';
-    if (t >= today - 7 * 86400e3) return '7 jours précédents';
-    if (t >= today - 30 * 86400e3) return '30 jours précédents';
-    const d = new Date(t);
-    const m = MONTHS[d.getMonth()];
+    if (ts >= today) return t('today');
+    if (ts >= today - 86400e3) return t('yesterday');
+    if (ts >= today - 7 * 86400e3) return t('prev7');
+    if (ts >= today - 30 * 86400e3) return t('prev30');
+    const d = new Date(ts);
+    const m = t('months')[d.getMonth()];
     return m[0].toUpperCase() + m.slice(1) + (d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '');
   }
-  function shortDate(t) {
-    const d = new Date(t), today = startOfDay(new Date());
-    if (t >= today) return pad(d.getHours()) + ':' + pad(d.getMinutes());
-    if (t >= today - 86400e3) return 'Hier';
-    if (t >= today - 7 * 86400e3) return DAYS[d.getDay()];
-    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(2);
+  function clock(d, m) {
+    if (settings.lang === 'en') return (d.getHours() % 12 || 12) + ':' + pad(m) + (d.getHours() < 12 ? ' AM' : ' PM');
+    return pad(d.getHours()) + ':' + pad(m);
+  }
+  function shortDate(ts) {
+    const d = new Date(ts), today = startOfDay(new Date());
+    if (ts >= today) return clock(d, d.getMinutes());
+    if (ts >= today - 86400e3) return t('yesterday');
+    if (ts >= today - 7 * 86400e3) return t('days')[d.getDay()];
+    const yy = String(d.getFullYear()).slice(2);
+    return settings.lang === 'en' ? `${d.getMonth() + 1}/${d.getDate()}/${yy}` : `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${yy}`;
   }
   const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -420,24 +530,24 @@
       const lines = n.text.split('\n').map(s => s.trim()).filter(Boolean);
       const row = document.createElement('div');
       row.className = 'row';
-      row.innerHTML = `<div class="t">${esc(lines[0] || 'Nouvelle note')}</div>
-        <div class="s"><b>${shortDate(n.t)}</b>${esc(lines[1] || 'Aucun texte supplémentaire')}</div>
-        <div class="f"><svg width="14" height="11" viewBox="0 0 14 11"><path d="M1 2.2C1 1.5 1.5 1 2.2 1h3l1.3 1.4h5.3c.7 0 1.2.5 1.2 1.2v5.2c0 .7-.5 1.2-1.2 1.2H2.2C1.5 10 1 9.5 1 8.8V2.2Z" fill="none" stroke="#8a8a8e" stroke-width="1.1"/></svg>Notes</div>`;
+      row.innerHTML = `<div class="t">${esc(lines[0] || t('newNote'))}</div>
+        <div class="s"><b>${shortDate(n.t)}</b>${esc(lines[1] || t('noText'))}</div>
+        <div class="f"><svg width="14" height="11" viewBox="0 0 14 11"><path d="M1 2.2C1 1.5 1.5 1 2.2 1h3l1.3 1.4h5.3c.7 0 1.2.5 1.2 1.2v5.2c0 .7-.5 1.2-1.2 1.2H2.2C1.5 10 1 9.5 1 8.8V2.2Z" fill="none" stroke="#8a8a8e" stroke-width="1.1"/></svg>${t('notes')}</div>`;
       row.onclick = () => openNote(n.id);
       group.appendChild(row);
     });
-    $('count').textContent = notes.length + (notes.length > 1 ? ' notes' : ' note');
+    $('count').textContent = t('count', notes.length);
   }
 
   /* ================== Éditeur ================== */
   const editor = $('editor'), noteEl = $('note');
   let current = null, idleTimer = null;
 
-  function fullDate(t) {
-    const d = new Date(t);
-    // Minutes de la date de la note = carte sur laquelle couper (si activé)
+  function fullDate(ts) {
+    const d = new Date(ts);
+    // Minutes de la date de la note = carte sur laquelle couper
     const m = state.forced !== null ? state.forced : d.getMinutes();
-    return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} à ${pad(d.getHours())}:${pad(m)}`;
+    return t('fullDate', d, t('months')[d.getMonth()], clock(d, m));
   }
   function renderDate() {
     if (current) $('noteDate').textContent = fullDate(current.t);
@@ -508,7 +618,7 @@
   $('newBtn').onclick = newNote;
   $('newBtn2').onclick = newNote;
   $('moreBtn').onclick = () => {
-    if (current && confirm('Supprimer cette note ?')) { current.text = ''; noteEl.innerHTML = ''; closeEditor(); }
+    if (current && confirm(t('confirmDelete'))) { current.text = ''; noteEl.innerHTML = ''; closeEditor(); }
   };
   // Balayage depuis le bord gauche = retour
   let sx = null;
@@ -519,12 +629,11 @@
   const settingsEl = $('settings');
   function persist() { store.set('cm.settings', settings); }
 
-  function stackToText(ids) { return ids.map((id, i) => `${i + 1}. ${code(id)}`).join('\n'); }
+  function stackToText(ids) { return ids.map((id, i) => `${i + 1}. ${label(id)}`).join('\n'); }
   function fillSettings() {
+    $('lang').value = settings.lang;
     $('preset').value = settings.preset;
-    $('stackText').value = settings.preset === 'custom'
-      ? settings.custom
-      : stackToText(parseStack(PRESETS[settings.preset]).ids);
+    $('stackText').value = stackToText(state.stack);
     $('stackText').readOnly = settings.preset !== 'custom';
     $('hold').value = settings.hold;
     document.querySelectorAll('[data-cut]').forEach(el => el.classList.toggle('on', el.dataset.cut === settings.cut));
@@ -532,23 +641,23 @@
     runSim();
   }
   function validateStack() {
-    const src = settings.preset === 'custom' ? settings.custom : PRESETS[settings.preset];
-    const r = parseStack(src);
+    const r = parseStack($('stackText').value, settings.lang);
     const msg = $('stackMsg');
     const probs = [];
-    if (r.errors.length) probs.push('illisible : ' + r.errors.slice(0, 4).join(', '));
-    if (r.dups.length) probs.push('en double : ' + r.dups.map(label).join(', '));
-    if (r.ids.length !== 52) probs.push(r.ids.length + ' cartes au lieu de 52');
+    if (r.errors.length) probs.push(t('unreadable') + ' ' + r.errors.slice(0, 4).join(', '));
+    if (r.dups.length) probs.push(t('dups') + ' ' + r.dups.map(label).join(', '));
+    if (r.ids.length !== 52) probs.push(t('cardCount', r.ids.length));
     msg.className = 's-foot ' + (probs.length ? 'err' : 'ok');
-    msg.textContent = probs.length ? '⚠︎ ' + probs.join(' · ') : '✓ 52 cartes, toutes différentes.';
+    msg.textContent = probs.length ? '⚠︎ ' + probs.join(' · ') : '✓ ' + t('stackOk');
+    return probs.length ? null : r.ids;
   }
   function runSim() {
     const out = $('simOut');
     const c = $('simCard').value, p = $('simPos').value;
-    if (!c.trim() || !p.trim()) { out.textContent = 'Entrez une carte et une position.'; return; }
+    if (!c.trim() || !p.trim()) { out.textContent = t('simEmpty'); return; }
     const r = solve(c + '\n' + p);
-    if (!r) { out.textContent = 'Carte ou position non reconnue.'; return; }
-    out.innerHTML = `${label(r.card)} est n°${r.from} → doit aller en ${r.to}<br>Couper sur la carte <b>n°${r.cut}</b> (minutes « :${pad(r.cut)} »)`;
+    if (!r) { out.textContent = t('simBad'); return; }
+    out.innerHTML = t('simOut', label(r.card), r.from, r.to, r.cut, pad(r.cut));
   }
 
   let lp = null;
@@ -565,24 +674,23 @@
   $('closeSettings').onclick = () => { settingsEl.classList.remove('open'); document.activeElement && document.activeElement.blur(); };
   $('preset').onchange = e => {
     const v = e.target.value;
-    if (v === 'custom' && settings.preset !== 'custom') settings.custom = stackToText(state.stack);
+    if (v === 'custom' && !settings.customIds) settings.customIds = state.stack.slice();
     settings.preset = v; applyStack(); persist(); fillSettings();
   };
   $('stackText').oninput = e => {
     if (settings.preset !== 'custom') return;
-    settings.custom = e.target.value;
-    validateStack();
-    const r = parseStack(settings.custom);
-    if (r.ids.length === 52 && !r.dups.length && !r.errors.length) { applyStack(); persist(); runSim(); }
+    const ids = validateStack();
+    if (ids) { settings.customIds = ids; applyStack(); persist(); runSim(); }
   };
   document.querySelectorAll('[data-cut]').forEach(el => el.onclick = () => {
     settings.cut = el.dataset.cut; persist(); fillSettings();
   });
+  $('lang').onchange = e => { settings.lang = e.target.value; persist(); applyLang(); fillSettings(); };
   $('hold').onchange = e => { settings.hold = Math.max(1, Math.min(60, +e.target.value || 3)); persist(); };
   $('simCard').oninput = runSim;
   $('simPos').oninput = runSim;
   $('resetClock').onclick = unforce;
-  $('wipe').onclick = () => { if (confirm('Effacer toutes les notes ?')) { notes = []; saveNotes(); renderList(); } };
+  $('wipe').onclick = () => { if (confirm(t('confirmWipe'))) { notes = []; saveNotes(); renderList(); } };
 
   /* ================== Clavier iOS : garder la barre d'état en place ================== */
   function fitViewport() {
@@ -596,7 +704,24 @@
     visualViewport.addEventListener('scroll', fitViewport);
   }
 
+  function applyLang() {
+    // Les notes d'exemple non modifiées suivent la langue choisie
+    notes.forEach(n => {
+      const i = ['n1', 'n2', 'n3'].indexOf(n.id);
+      if (i >= 0 && Object.values(I18N).some(L => L.seed[i] === n.text)) n.text = t('seed')[i];
+    });
+    saveNotes();
+    document.documentElement.lang = settings.lang;
+    document.title = t('notes');
+    $('appTitle').setAttribute('content', t('notes'));
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    $('simCard').placeholder = t('simPh');
+    renderList();
+    renderDate();
+  }
+
   /* ================== Démarrage ================== */
+  applyLang();
   renderList();
   renderClock();
   setInterval(renderClock, 1000);
