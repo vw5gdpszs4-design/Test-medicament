@@ -648,3 +648,8 @@ html[data-mode="dark"] .rec-btn { background: var(--surface-3); }
 
 .mtile.drawing, .card-media.drawing, .row-thumb.drawing { background-size: contain; background-color: #FFFDF8; }
 #editor .tb { border-color: color-mix(in srgb, var(--ink) 10%, transparent); }
+.ask { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 24px; background: rgba(8, 9, 12, .45); opacity: 0; transition: opacity .2s; }
+.ask.open { opacity: 1; }
+.ask-card { width: min(360px, 100%); background: var(--surface); border-radius: 22px; padding: 22px 18px 18px; box-shadow: var(--sh-3); text-align: center; transform: scale(.94); transition: transform .3s var(--spring); }
+.ask.open .ask-card { transform: none; }
+.ask-card p { margin: 0 0 4px; font-weight: 600; font-size: 17px; }

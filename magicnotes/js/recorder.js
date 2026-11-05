@@ -1,5 +1,6 @@
 // Enregistreur vocal : onde en temps réel, pause / reprise, transcription (si le navigateur la propose).
 import { icon } from './icons.js';
+import { ask } from './ask.js';
 
 const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -9,7 +10,9 @@ function pickMime() {
   return c.find((m) => MediaRecorder.isTypeSupported?.(m)) || '';
 }
 
-export const canRecord = () => !!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
+// Dans un cadre (page hébergée sur claude.ai), le micro est bloqué : on passe par l'import de fichier audio.
+export const framed = (() => { try { return window.top !== window; } catch { return true; } })();
+export const canRecord = () => !framed && !!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 export function openRecorder() {
@@ -123,11 +126,11 @@ export function openRecorder() {
       root.querySelector('.rec-tr')?.classList.add('on');
     }
 
-    root.addEventListener('click', (e) => {
+    root.addEventListener('click', async (e) => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const a = b.dataset.r;
       if (a === 'cancel') {
-        if (elapsed > 3 && !confirm('Supprimer cet enregistrement ?')) return;
+        if (elapsed > 3 && !(await ask('Supprimer cet enregistrement ?', 'Supprimer'))) return;
         try { mr.stop(); } catch {}
         finish(null);
       } else if (a === 'pause') {

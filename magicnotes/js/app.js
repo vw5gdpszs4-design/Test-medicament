@@ -1,9 +1,9 @@
 // MagicNotes — carnet de création pour créateurs de tours.
 import { icon } from './icons.js';
-import { db } from './db.js';
+import { db, initStorage, storageMode, downloadsApi } from './db.js';
 import { coverSVG, COVER_PATTERNS, COVER_HUES } from './covers.js';
 import { openDrawing } from './draw.js';
-import { openRecorder, canRecord } from './recorder.js';
+import { openRecorder, canRecord, framed } from './recorder.js';
 
 /* ───────────────────────── Utilitaires ───────────────────────── */
 const $ = (s, r = document) => r.querySelector(s);
@@ -199,13 +199,12 @@ const urlCache = new Map();
 async function mediaURL(id, field = 'data') {
   const k = id + ':' + field;
   if (urlCache.has(k)) return urlCache.get(k);
-  const m = await db.get('media', id);
-  if (!m || !m[field]) return null;
-  const u = URL.createObjectURL(new Blob([m[field]], { type: field === 'data' ? m.mime : 'image/jpeg' }));
+  const u = await db.mediaURL(id, field);
+  if (!u) return null;
   urlCache.set(k, u);
   return u;
 }
-function revokeMedia(id) { for (const f of ['data', 'thumb']) { const k = id + ':' + f; if (urlCache.has(k)) { URL.revokeObjectURL(urlCache.get(k)); urlCache.delete(k); } } }
+function revokeMedia(id) { for (const f of ['data', 'thumb']) { const k = id + ':' + f; if (urlCache.has(k)) { const u = urlCache.get(k); if (u.startsWith('blob:')) URL.revokeObjectURL(u); urlCache.delete(k); } } }
 
 async function addMedia(n, { type, blob, thumb, ...meta }) {
   const id = uid();
@@ -666,11 +665,11 @@ VIEWS.settings = () => {
       <button class="set link-row" data-act="go" data-to="trash">${icon('trash')}<span>Corbeille</span><small>${trash}</small>${icon('next')}</button>
     </div>
     <div class="group"><h3>Données</h3>
-      <div class="set storage"><div><span>Stockage sur cet appareil</span><small id="storage-info">Calcul…</small></div><div class="meter"><i id="storage-bar"></i></div></div>
+      <div class="set storage"><div><span>Stockage</span><small id="storage-info">Calcul…</small></div><div class="meter"><i id="storage-bar"></i></div></div>
       <button class="set link-row" data-act="export">${icon('download')}<span>Exporter une sauvegarde</span><small>.json</small>${icon('next')}</button>
       <button class="set link-row" data-act="import">${icon('upload')}<span>Importer une sauvegarde</span>${icon('next')}</button>
     </div>
-    <div class="about">${logo(44)}<b>MagicNotes</b><span>Version 1.0 · Vos notes restent sur cet appareil, sans compte ni serveur.</span></div>
+    <div class="about">${logo(44)}<b>MagicNotes</b><span>Version 1.1 · ${storageMode === 'remote' ? 'Vos notes sont enregistrées dans votre espace privé claude.ai et vous suivent sur tous vos appareils.' : 'Vos notes restent sur cet appareil, sans compte ni serveur.'}</span></div>
   </div><div class="foot-space"></div>`;
 };
 
@@ -686,7 +685,12 @@ VIEWS.trash = () => {
 
 /* ───────────────────────── Rendu & navigation ───────────────────────── */
 function parseKey(key) { const [name, ...rest] = (key || 'home').split('/'); return { name: VIEWS[name] || name === 'note' ? name : 'home', arg: rest.join('/') }; }
-function keyFromHash() { return location.hash.replace(/^#\/?/, '') || 'home'; }
+// Navigation : historique du navigateur, ou pile interne quand l'app tourne dans un cadre.
+const nav = framed ? (() => {
+  const st = ['#/home'];
+  return { push: (h) => st.push(h), replace: (h) => { st[st.length - 1] = h; }, back: () => { if (st.length > 1) st.pop(); setTimeout(onPop, 0); }, hash: () => st[st.length - 1] };
+})() : { push: (h) => history.pushState({}, '', h), replace: (h) => history.replaceState({}, '', h), back: () => history.back(), hash: () => location.hash };
+function keyFromHash() { return nav.hash().replace(/^#\/?/, '') || 'home'; }
 const TAB_OF = { home: 'home', books: 'books', book: 'books', search: 'search', atelier: 'atelier' };
 
 function render(key, { keepScroll = false } = {}) {
@@ -712,7 +716,7 @@ function refresh() { if (S.key) render(S.key, { keepScroll: true }); }
 function go(key) {
   if (key === S.key) { scrollTo({ top: 0, behavior: 'smooth' }); return; }
   navDir = 'fwd'; S.depth++;
-  history.pushState({ key }, '', '#/' + key);
+  nav.push('#/' + key);
   render(key);
 }
 function onPop() {
@@ -725,13 +729,13 @@ function onPop() {
 }
 function openNote(id, opts) {
   if (S.editor) return;
-  history.pushState({ note: id }, '', '#/note/' + id);
+  nav.push('#/note/' + id);
   S.pushedNote = true;
   openEditor(id, opts);
 }
 function leaveEditor() {
-  if (S.pushedNote) { S.pushedNote = false; history.back(); }
-  else { history.replaceState({}, '', '#/' + (S.last || 'home')); closeEditor(); }
+  if (S.pushedNote) { S.pushedNote = false; nav.back(); }
+  else { nav.replace('#/' + (S.last || 'home')); closeEditor(); }
 }
 function countUp(root) {
   $$('[data-count]', root).forEach((el) => {
@@ -764,6 +768,7 @@ function bindBoard() {
 }
 async function fillStorage() {
   const info = $('#storage-info'), bar = $('#storage-bar'); if (!info) return;
+  if (storageMode === 'remote') { info.textContent = 'Synchronisé avec votre compte Claude, privé'; bar.style.width = '100%'; return; }
   try {
     const e = await navigator.storage.estimate();
     const persisted = await navigator.storage.persisted?.();
@@ -939,7 +944,15 @@ function capture(kind, extra = {}) {
       break;
     }
     case 'audio': {
-      if (!canRecord()) { toast('L’enregistrement audio n’est pas disponible ici'); return; }
+      if (!canRecord()) {
+        pickFiles('audio/*').then(async (files) => {
+          if (!files.length) return;
+          const n = newNote(base);
+          await withProgress('Importation…', async () => { for (const f of files) await addFile(n, f); });
+          openNote(n.id);
+        });
+        break;
+      }
       openRecorder().then(async (r) => {
         if (!r) return; if (r.error) { toast(r.error); return; }
         const n = newNote({ ...base, html: r.transcript ? `<p>${esc(r.transcript)}</p>` : '' });
@@ -1039,7 +1052,7 @@ function resetThemeColor() { setThemeColor(isDark() ? '#0D0E11' : '#F5F4F0'); }
 
 function openEditor(id, opts = {}) {
   const n = S.notes.find((x) => x.id === id && !x.deleted);
-  if (!n) { history.replaceState({}, '', '#/' + (S.last || 'home')); return; }
+  if (!n) { nav.replace('#/' + (S.last || 'home')); return; }
   const el = $('#editor');
   el.innerHTML = editorHTML(n);
   S.editor = { note: n, save: debounce(() => saveNote(n).then(() => { const mt = $('.meta-time', el); if (mt) mt.textContent = 'Enregistré'; }), 450) };
@@ -1263,7 +1276,12 @@ async function edAction(a, b, ev) {
       renderEdMedia(); break;
     }
     case 'audio': {
-      if (!canRecord()) { toast('L’enregistrement audio n’est pas disponible ici'); return; }
+      if (!canRecord()) {
+        const files = await pickFiles('audio/*');
+        if (!files.length || !S.editor) return;
+        await withProgress('Ajout…', async () => { for (const f of files) await addFile(n, f); });
+        renderEdMedia(); return;
+      }
       const r = await openRecorder(); if (!r || !S.editor) return; if (r.error) { toast(r.error); return; }
       await addMedia(n, { type: 'audio', blob: r.blob, dur: r.dur, peaks: r.peaks, transcript: r.transcript, name: `Mémo vocal ${n.media.filter((m) => m.type === 'audio').length + 1}` });
       renderEdMedia(); break;
@@ -1295,12 +1313,18 @@ async function edAction(a, b, ev) {
     }
   }
 }
+async function saveFile(file, name) {
+  const dl = await downloadsApi();
+  if (dl) { try { const r = await dl.save({ filename: name, data: file }); if (r?.status === 'saved') toast('Fichier enregistré'); } catch (e) { if (e?.code && e.code !== 'declined' && e.code !== 'cancelled') toast('Enregistrement impossible ici'); } return; }
+  if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+  const u = URL.createObjectURL(file); const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000);
+}
 async function shareNote(n) {
   syncBody(n);
   const parts = [n.title, n.text];
   if (n.fiche) FICHE.forEach((x) => n.fiche[x.k] && parts.push(`${x.label} : ${n.fiche[x.k]}`));
   const text = parts.filter(Boolean).join('\n\n');
-  if (navigator.share) { try { await navigator.share({ title: n.title || 'Note', text }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+  if (navigator.share && !framed) { try { await navigator.share({ title: n.title || 'Note', text }); return; } catch (e) { if (e.name === 'AbortError') return; } }
   try { await navigator.clipboard.writeText(text); toast('Texte copié dans le presse-papiers'); } catch { toast('Partage indisponible'); }
 }
 async function downloadMedia(m) {
@@ -1308,8 +1332,7 @@ async function downloadMedia(m) {
   const ext = (rec.mime.split('/')[1] || 'bin').split(';')[0].replace('jpeg', 'jpg').replace('mpeg', 'mp3');
   const name = /\.\w{2,4}$/.test(m.name || '') ? m.name : `${(m.name || 'media').replace(/[^\p{L}\p{N} _-]/gu, '')}.${ext}`;
   const file = new File([rec.data], name, { type: rec.mime });
-  if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === 'AbortError') return; } }
-  const u = URL.createObjectURL(file); const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+  await saveFile(file, name);
 }
 
 /* ───────────────────────── Visionneuse ───────────────────────── */
@@ -1373,8 +1396,7 @@ async function exportAll() {
     const json = JSON.stringify({ app: 'MagicNotes', version: 1, exportedAt: new Date().toISOString(), notes: S.notes, books: S.books, themes: S.themes, settings: S.settings, media: mm });
     const name = `MagicNotes-${new Date().toISOString().slice(0, 10)}.json`;
     const file = new File([json], name, { type: 'application/json' });
-    if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file], title: 'Sauvegarde MagicNotes' }); return; } catch (e) { if (e.name === 'AbortError') return; } }
-    const u = URL.createObjectURL(file); const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000);
+    await saveFile(file, name);
   });
 }
 async function importAll() {
@@ -1394,7 +1416,7 @@ async function importAll() {
 /* ───────────────────────── Actions globales ───────────────────────── */
 const ACT = {
   go: (b) => go(b.dataset.to),
-  back: () => { if (S.depth > 0) history.back(); else go(parseKey(S.key).name === 'book' ? 'books' : 'home'); },
+  back: () => { if (S.depth > 0) nav.back(); else go(parseKey(S.key).name === 'book' ? 'books' : 'home'); },
   capture: (b) => capture(b.dataset.kind),
   fab: () => fabSheet(),
   newBook: () => editBook(),
@@ -1465,7 +1487,8 @@ document.addEventListener('keydown', (e) => {
 /* ───────────────────────── Réglages d'affichage ───────────────────────── */
 const mq = matchMedia('(prefers-color-scheme: dark)');
 function applySettings() {
-  const m = S.settings.mode === 'auto' ? (mq.matches ? 'dark' : 'light') : S.settings.mode;
+  const host = document.documentElement.dataset.theme;
+  const m = S.settings.mode === 'auto' ? (host === 'dark' || host === 'light' ? host : mq.matches ? 'dark' : 'light') : S.settings.mode;
   document.documentElement.dataset.mode = m;
   document.documentElement.dataset.fs = S.settings.fontSize;
   try { localStorage.setItem('mn-mode', JSON.stringify(S.settings.mode)); } catch {}
@@ -1493,13 +1516,14 @@ function tabbar() {
 }
 async function boot() {
   applySettings();
-  try { await load(); } catch (e) { console.error(e); $('#view').innerHTML = emptyState('info', 'Stockage indisponible', 'Ouvrez MagicNotes dans Safari (hors navigation privée).'); return; }
+  await initStorage();
+  try { await load(); } catch (e) { console.error(e); $('#view').innerHTML = emptyState('info', 'Stockage indisponible', 'Impossible de charger vos notes. Vérifiez votre connexion puis rouvrez MagicNotes.'); return; }
   applySettings();
   tabbar();
   lastCols = colCount();
   const key = keyFromHash();
   const { name, arg } = parseKey(key);
-  history.replaceState({ key }, '', location.hash || '#/home');
+  nav.replace(framed ? '#/' + key : location.hash || '#/home');
   if (name === 'note') { render('home'); openEditor(arg); } else render(key);
   addEventListener('popstate', onPop);
   window.visualViewport?.addEventListener('resize', syncViewport);

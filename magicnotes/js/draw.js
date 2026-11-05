@@ -1,5 +1,6 @@
 // Atelier de dessin plein écran — vectoriel (traits ré-éditables), pression du stylet, gomme.
 import { icon } from './icons.js';
+import { ask } from './ask.js';
 
 const COLORS = ['#16171B', '#5B5E66', '#D93A3A', '#E8892B', '#2E9E6A', '#2F6FE0', '#6C4FD8', '#FFFFFF'];
 const BGS = ['plain', 'grid', 'dots', 'lines'];
@@ -196,7 +197,7 @@ export function openDrawing(init = {}) {
       } else switch (t.dataset.d) {
         case 'undo': if (strokes.length) { redo.push(strokes.pop()); redraw(); } break;
         case 'redo': if (redo.length) { strokes.push(redo.pop()); redraw(); } break;
-        case 'clear': if (strokes.length && confirm('Effacer tout le dessin ?')) { redo = []; strokes = []; redraw(); } break;
+        case 'clear': if (strokes.length && await ask('Effacer tout le dessin ?', 'Effacer')) { redo = []; strokes = []; redraw(); } break;
         case 'bg': {
           bg = BGS[(BGS.indexOf(bg) + 1) % BGS.length];
           paper.className = 'draw-paper bg-' + bg;
@@ -204,7 +205,7 @@ export function openDrawing(init = {}) {
           break;
         }
         case 'cancel':
-          if (strokes.length && JSON.stringify(strokes) !== JSON.stringify(init.strokes || []) && !confirm('Quitter sans enregistrer ?')) return;
+          if (strokes.length && JSON.stringify(strokes) !== JSON.stringify(init.strokes || []) && !(await ask('Quitter sans enregistrer le dessin ?', 'Quitter'))) return;
           close(null); break;
         case 'save': {
           if (!strokes.length) { close(null); return; }
