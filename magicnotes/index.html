@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr" data-mode="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MagicNotes</title>
+  <meta name="description" content="Le carnet de création des créateurs de tours : idées, méthodes, médias, recherche instantanée.">
+  <meta name="theme-color" content="#F5F4F0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="MagicNotes">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/app.css">
+  <script>
+    // Applique le thème avant le premier rendu pour éviter un flash.
+    try { var m = (JSON.parse(localStorage.getItem('mn-mode') || '"auto"')); } catch (e) { var m = 'auto'; }
+    document.documentElement.dataset.mode = (m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches)) ? 'dark' : 'light';
+  </script>
+</head>
+<body>
+  <div id="splash" aria-hidden="true">
+    <svg class="logo" width="76" height="76" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="var(--logo-bg)"/><rect x="13" y="20" width="26" height="30" rx="5" fill="#F2C94C" transform="rotate(-10 26 35)"/><rect x="20" y="15" width="26" height="30" rx="5" fill="#5ED3C3" transform="rotate(4 33 30)"/><rect x="27" y="17" width="24" height="30" rx="5" fill="#8B7CF6" transform="rotate(14 39 32)"/><path d="M33 26h11M33 31h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round" transform="rotate(14 39 32)"/></svg>
+  </div>
+  <main id="view"></main>
+  <nav id="tabbar" aria-label="Navigation"></nav>
+  <section id="editor" aria-hidden="true"></section>
+  <div id="sheets"></div>
+  <div id="toasts" aria-live="polite"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
